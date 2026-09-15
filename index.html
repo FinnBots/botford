@@ -1,0 +1,1231 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<title>BotFord — a FinnBots game</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jersey+15&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --plum:#5f4c57; --plum-deep:#3e323a; --amber:#f2a03d; --electric:#3a6ff7;
+    --sip:#a0e8f0; --cam:#a0f0c0;
+    --peach:#f5c8a0; --soft:#fdf3e7; --ink:#3e323a; --muted:#8a7a82; --red:#c0392b;
+    --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s6:24px;
+    --r-sm:8px; --r-md:12px; --r-lg:16px; --r-xl:22px;
+    --sh1:0 1px 2px rgba(62,50,58,.12); --sh2:0 4px 14px rgba(62,50,58,.16);
+    --disp:'Jersey 15',system-ui,sans-serif; --body:'Plus Jakarta Sans',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100dvh;overflow:hidden;margin:0}
+  body{
+    font-family:var(--body); color:var(--ink);
+    background:radial-gradient(120% 80% at 50% 0%, var(--soft), var(--peach));
+    -webkit-font-smoothing:antialiased; user-select:none; -webkit-user-select:none;
+    touch-action:none;
+  }
+  .wrap{height:100%;max-width:1024px;margin:0 auto;display:flex;flex-direction:column;padding:var(--s3);gap:var(--s2)}
+
+  /* Rotate hint — portrait phones only (the cave is a wide 40x22 landscape) */
+  .rotate{display:none}
+  @media (orientation:portrait) and (max-width:820px) and (pointer:coarse){
+    .rotate{display:flex;align-items:center;justify-content:center;gap:6px;
+      background:rgba(255,255,255,.6);border-radius:var(--r-md);padding:7px var(--s3);
+      font-size:12.5px;color:var(--plum-deep);text-align:center;box-shadow:var(--sh1)}
+  }
+
+  .topbar{display:flex;align-items:center;gap:var(--s3);min-height:34px}
+  .pill{font-family:var(--disp);font-size:15px;letter-spacing:.5px;color:#fff;background:var(--plum);
+        padding:2px var(--s3);border-radius:999px;box-shadow:var(--sh1);white-space:nowrap}
+  .title{font-family:var(--disp);font-size:26px;line-height:1;color:var(--plum-deep);
+         flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .iconbtn{appearance:none;border:0;background:#fff;color:var(--plum);width:32px;height:32px;
+           border-radius:50%;font-family:var(--disp);font-size:18px;box-shadow:var(--sh1);cursor:pointer}
+  .iconbtn:focus-visible{outline:3px solid var(--electric);outline-offset:2px}
+
+  .modebar{display:flex;gap:var(--s1);background:rgba(255,255,255,.5);border-radius:999px;
+           padding:3px;box-shadow:var(--sh1)}
+  .modepill{flex:1;appearance:none;border:0;cursor:pointer;font-family:var(--disp);font-size:14px;
+            padding:5px 10px;border-radius:999px;background:transparent;color:var(--muted)}
+  .modepill.active{background:var(--amber);color:var(--plum-deep)}
+  .modepill:disabled{opacity:.5;cursor:default}
+  .modepill:focus-visible{outline:2px solid var(--electric);outline-offset:2px}
+
+  .testBanner{background:var(--amber);color:#4a2c10;font-weight:700;text-align:center;
+              font-size:12px;padding:5px 10px;border-radius:var(--r-md)}
+  .testBanner.hidden{display:none}
+
+  .walletbar{display:none;flex-direction:column;gap:5px;background:rgba(255,255,255,.55);
+             border-radius:var(--r-md);padding:7px var(--s3);box-shadow:var(--sh1)}
+  body.mode-paid .walletbar{display:flex}
+  .walletrow{display:flex;align-items:center;gap:8px}
+  .walletrow .lbl{font-size:12px;color:var(--plum-deep);flex:1;line-height:1.3}
+  .connect-btn{appearance:none;border:0;cursor:pointer;font-family:var(--disp);font-size:14px;
+               background:var(--plum);color:#fff;padding:6px 16px;border-radius:999px;box-shadow:var(--sh1)}
+  .connect-btn:disabled{opacity:.6;cursor:default}
+  .wallet-status{font-size:12px;color:var(--muted);line-height:1.35}
+  .wallet-status.hidden{display:none}
+  .wallet-status.ok{color:var(--plum-deep)} .wallet-status.warn{color:var(--red)}
+  .wallet-status .addr{font-family:ui-monospace,monospace;color:var(--plum)}
+
+  .facts{font-size:12.5px;color:var(--plum-deep);background:rgba(255,255,255,.55);
+         border-radius:var(--r-md);padding:6px var(--s3);text-align:center;min-height:30px;
+         display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:var(--sh1)}
+  .facts b{font-weight:700}
+  .dot-sep{opacity:.4}
+
+  /* HUD — BotFord: BEADS / VAL / TIME / SCORE / LIVES */
+  .hud{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--s2) var(--s3);
+       font-family:var(--disp);color:var(--plum-deep);background:rgba(255,255,255,.55);
+       border-radius:var(--r-md);padding:6px var(--s4);min-height:34px;box-shadow:var(--sh1)}
+  .hud .lab{font-size:11px;color:var(--muted);letter-spacing:1px}
+  .hud .val{font-size:18px;line-height:1}
+  .hud .val.warn{color:var(--red)}
+  .lives{display:inline-flex;gap:4px;align-items:center}
+  .life{width:9px;height:9px;border-radius:50%;background:var(--amber);box-shadow:var(--sh1)}
+  .life.off{background:rgba(0,0,0,.14);box-shadow:none}
+
+  .surface{flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
+  /* LANDSCAPE cave — width-driven + letterbox (never height:100%, which would stretch the grid). */
+  canvas{
+    width:100%;height:auto;max-width:100%;max-height:100%;
+    aspect-ratio:40/22; background:#20150f; border-radius:var(--r-lg);
+    box-shadow:var(--sh2); image-rendering:pixelated; image-rendering:crisp-edges;
+    touch-action:none;
+  }
+
+  /* Controls: 4-way d-pad + DIG (snap-dig / fire) */
+  .controls{display:flex;gap:var(--s6);align-items:center;justify-content:center;
+            background:rgba(255,255,255,.55);border-radius:var(--r-md);padding:6px var(--s4);box-shadow:var(--sh1)}
+  .dpad{display:grid;grid-template-columns:repeat(3,44px);grid-template-rows:repeat(3,40px);gap:4px}
+  .ctl{appearance:none;border:0;cursor:pointer;font-family:var(--disp);font-size:20px;
+       color:var(--plum-deep);background:#fff;border-radius:var(--r-sm);box-shadow:var(--sh1);
+       touch-action:none;user-select:none;-webkit-user-select:none;display:flex;align-items:center;justify-content:center}
+  .ctl:active,.ctl.on{transform:translateY(1px);background:var(--amber)}
+  .ctl:focus-visible{outline:3px solid var(--electric);outline-offset:2px}
+  .ctl.blank{visibility:hidden}
+  .ctl.dig{font-size:13px;color:#fff;background:var(--plum)}
+  .ctl.dig:active,.ctl.dig.on{background:var(--plum-deep)}
+  #padU{grid-area:1/2/2/3} #padL{grid-area:2/1/3/2} #padDig{grid-area:2/2/3/3}
+  #padR{grid-area:2/3/3/4} #padD{grid-area:3/2/4/3}
+
+  .foot{text-align:center;min-height:28px}
+  .foot .tag{font-family:var(--disp);font-size:13px;color:var(--muted);letter-spacing:.5px}
+  .foot .links{font-size:12px;margin-top:1px}
+  .foot a{color:var(--muted);text-decoration:none;margin:0 6px}
+  .foot a:hover{color:var(--plum)}
+  .foot a:focus-visible{outline:2px solid var(--electric);outline-offset:2px;border-radius:3px}
+
+  .overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;
+           background:rgba(42,34,48,.55);backdrop-filter:blur(2px);padding:var(--s4);z-index:20}
+  .overlay.show{display:flex}
+  body.mode-paid .modebar,
+  body.mode-paid .walletbar{position:relative;z-index:21}
+  .card{background:var(--soft);border-radius:var(--r-xl);box-shadow:var(--sh2);
+        max-width:380px;width:100%;padding:var(--s6);text-align:center}
+  .card h2{font-family:var(--disp);font-size:30px;margin:0 0 var(--s2);color:var(--plum-deep)}
+  .card.win h2{color:var(--amber)}
+  .card p{font-size:13.5px;line-height:1.5;margin:var(--s2) 0;color:var(--plum-deep)}
+  .card .big{font-family:var(--disp);font-size:22px;color:var(--plum-deep);margin:var(--s3) 0}
+  .card .big span{color:var(--amber)}
+  .btn{appearance:none;border:0;font-family:var(--disp);font-size:18px;color:#fff;background:var(--plum);
+       padding:10px var(--s6);border-radius:999px;cursor:pointer;box-shadow:var(--sh1);margin-top:var(--s3)}
+  .btn:hover{background:var(--plum-deep)}
+  .btn.amber{background:var(--amber);color:#4a2c10}
+  .btn:disabled{opacity:.5;cursor:default}
+  .btn:focus-visible{outline:3px solid var(--electric);outline-offset:2px}
+  .btnrow{display:flex;gap:var(--s2);justify-content:center;flex-wrap:wrap}
+  .rules{text-align:left}
+  .rules li{font-size:12.5px;line-height:1.5;margin:5px 0}
+  .legend{display:grid;grid-template-columns:1fr 1fr;gap:2px 10px;text-align:left;font-size:12px;margin:var(--s2) 0;color:var(--plum-deep)}
+  .safe{font-size:11.5px;color:var(--muted);margin-top:var(--s3)}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+
+  .sheet{position:fixed;inset:0;background:rgba(42,34,48,.6);display:none;align-items:center;
+         justify-content:center;padding:var(--s4);z-index:30}
+  .sheet.show{display:flex}
+  .panel{width:100%;max-width:340px;background:var(--soft);border-radius:var(--r-xl);padding:var(--s6);
+         box-shadow:var(--sh2);text-align:center}
+  .panel h2{font-family:var(--disp);font-size:24px;margin:0 0 var(--s2);color:var(--plum-deep)}
+  .panel p{font-size:13px;color:var(--plum-deep);margin:0 0 var(--s4);line-height:1.5}
+  .panel p b{color:var(--plum-deep)}
+  .panel .again{appearance:none;border:0;cursor:pointer;font-family:var(--disp);font-size:16px;
+        background:var(--amber);color:#4a2c10;padding:11px var(--s6);border-radius:999px;display:block;
+        width:100%;margin-bottom:var(--s2);box-shadow:var(--sh1)}
+  .panel .ghostbtn{appearance:none;border:1px solid rgba(95,76,87,.25);cursor:pointer;font-family:var(--body);
+        font-weight:600;font-size:14px;background:transparent;color:var(--plum);padding:9px 18px;
+        border-radius:999px;display:block;width:100%;box-sizing:border-box;text-decoration:none;margin-bottom:var(--s2)}
+  .panel .ghostbtn:last-child{margin-bottom:0}
+
+  @media (max-width:520px){ .hud .val{font-size:16px} .title{font-size:22px} }
+
+  /* Landscape / short viewports: compress chrome so the cave fills the screen */
+  @media (orientation:landscape) and (max-height:600px){
+    .wrap{padding:4px 8px;gap:3px;max-width:100%}
+    .topbar{min-height:24px} .pill{font-size:12px;padding:1px 8px} .title{font-size:18px}
+    .iconbtn{width:26px;height:26px;font-size:15px}
+    .modebar{padding:2px} .modepill{font-size:12px;padding:3px 8px}
+    .facts,.rotate,.foot{display:none}
+    .hud{padding:3px 10px;min-height:26px;gap:2px 12px} .hud .val{font-size:14px} .hud .lab{font-size:9px}
+    .controls{padding:3px 8px;gap:14px}
+    .dpad{grid-template-columns:repeat(3,38px);grid-template-rows:repeat(3,30px);gap:3px}
+    .ctl{font-size:16px} .ctl.dig{font-size:11px}
+  }
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important} }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="topbar">
+      <span class="pill">BOT GAMES</span>
+      <h1 class="title">BOTFORD</h1>
+      <button class="iconbtn" id="infoBtn" aria-label="How to play">ⓘ</button>
+    </header>
+
+    <div class="modebar" role="tablist" aria-label="Play mode">
+      <button class="modepill active" id="modeFree" type="button" role="tab">Free play</button>
+      <button class="modepill" id="modePaid" type="button" role="tab">Paid · 25 OIL</button>
+    </div>
+
+    <div class="testBanner hidden" id="testBanner">🧪 TEST MODE — local validator, fake $OIL. No real value moves.</div>
+
+    <div class="walletbar" id="walletbar">
+      <div class="walletrow">
+        <span class="lbl">Paid — 25 OIL entry · fun leaderboard, not verified</span>
+        <button class="connect-btn" id="connectBtn" type="button">Connect</button>
+      </div>
+      <div class="wallet-status hidden" id="walletStatus"></div>
+    </div>
+
+    <div class="facts" id="facts">
+      <span>Free to play</span><span class="dot-sep">·</span>
+      <span>wallet-free</span><span class="dot-sep">·</span>
+      <span><b>pays nothing</b></span>
+    </div>
+
+    <div class="rotate">↻ Rotate to landscape for the full cave</div>
+
+    <div class="hud" aria-live="polite">
+      <div><span class="lab">BEADS </span><span class="val" id="beads">0/0</span></div>
+      <div><span class="lab">VAL </span><span class="val" id="val">10</span></div>
+      <div><span class="lab">TIME </span><span class="val" id="time">150</span></div>
+      <div><span class="lab">SCORE </span><span class="val" id="score">000000</span></div>
+      <div><span class="lab">LIVES </span><span class="lives" id="lives"></span></div>
+    </div>
+
+    <main class="surface">
+      <canvas id="game" width="640" height="352" aria-label="BotFord cave. Bot 106 digs scrap, drops drums, collects Beads, and reaches the bay before the timer ends. Avoid falling drums, Sparks and Tickflies."></canvas>
+    </main>
+
+    <div class="controls" aria-label="Move and dig">
+      <div class="dpad">
+        <button class="ctl" id="padU" type="button" aria-label="Up">▲</button>
+        <button class="ctl" id="padL" type="button" aria-label="Left">◀</button>
+        <button class="ctl dig" id="padDig" type="button" aria-label="Snap-dig (fire)">DIG</button>
+        <button class="ctl" id="padR" type="button" aria-label="Right">▶</button>
+        <button class="ctl" id="padD" type="button" aria-label="Down">▼</button>
+      </div>
+    </div>
+
+    <footer class="foot">
+      <div class="tag">a FinnBots game</div>
+      <div class="links">
+        <a href="https://magiceden.io/marketplace/finnbot" target="_blank" rel="noopener">Buy a Bot</a>·
+        <a href="https://finnstergram.com/games" target="_blank" rel="noopener">More games</a>·
+        <a href="https://dig.finnstergram.com/leaderboard.html" target="_blank" rel="noopener">Leaderboard</a>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Rules overlay -->
+  <div class="overlay" id="rulesOverlay" role="dialog" aria-modal="true" aria-labelledby="rulesTitle">
+    <div class="card">
+      <h2 id="rulesTitle">HOW TO PLAY</h2>
+      <ul class="rules">
+        <li><b>Arrows / WASD / d-pad</b> move Bot 106 one tile — walking into <b>scrap</b> digs it.</li>
+        <li><b>Space / DIG + a direction</b> = snap-dig: clear scrap or grab a Bead without stepping.</li>
+        <li>Collect the <b>Beads</b> quota, then the flashing <b>BAY</b> opens — reach it before TIME hits 0.</li>
+        <li><b>Drums</b> fall and roll. Dig a drum's support and step clear — linger beneath and it crushes you.</li>
+        <li>Push a still drum sideways into empty space. Drop drums on <b>Tickflies</b> to make Beads.</li>
+        <li>Dodge <b>Sparks</b> and <b>Tickflies</b> — a touch is fatal. The olive <b>Spill</b> is safe to touch.</li>
+      </ul>
+      <div class="legend">
+        <div>🟦 Bot 106</div><div>🟫 Drum</div>
+        <div>🟠 Bead ($OIL)</div><div>🟥 Spark</div>
+        <div>🟩 Tickfly</div><div>🫒 Spill</div>
+      </div>
+      <p class="safe">Free play never touches a wallet, never asks for a seed phrase, and never moves a Bot.</p>
+      <button class="btn" id="rulesClose">Got it</button>
+    </div>
+  </div>
+
+  <!-- Game-over / vault-clear overlay (FREE only) -->
+  <div class="overlay" id="overOverlay" role="dialog" aria-modal="true" aria-labelledby="overTitle">
+    <div class="card" id="overCard">
+      <h2 id="overTitle">SHIFT OVER</h2>
+      <div class="big">SCORE <span id="oScore">0</span></div>
+      <p>Cave <b id="oCave">1</b> · Beads <b id="oBeads">0</b> · Time <b id="oTime">0:00</b></p>
+      <div class="btnrow">
+        <button class="btn amber" id="continueBtn" hidden>Continue</button>
+        <button class="btn" id="retryBtn">Tap to retry</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cave-clear overlay (both modes) -->
+  <div class="overlay" id="caveOverlay" role="dialog" aria-modal="true" aria-labelledby="caveTitle">
+    <div class="card win">
+      <h2 id="caveTitle">BAY OPEN</h2>
+      <div class="big">+<span id="cBonus">0</span> time bonus</div>
+      <p id="caveSub">Cave cleared.</p>
+      <button class="btn" id="nextBtn">Tap next</button>
+    </div>
+  </div>
+
+  <!-- Paid overlay (start card + run-over card; innerHTML rewritten by the Paid controller) -->
+  <div class="overlay" id="paidOverlay" role="dialog" aria-modal="true"></div>
+
+  <!-- Kid-safety confirm gate (shown BEFORE any wallet code runs) -->
+  <div class="sheet" id="confirmSheet"><div class="panel">
+    <h2>Play BotFord — Paid</h2>
+    <p>One entry = one run (3 lives). Costs <b>25 OIL</b> to the treasury (a sink). Pays nothing out — you're playing for a leaderboard spot. Bot holders: score ×1.5.<br/><br/>A <b>fun ranking</b> — not verified.</p>
+    <button class="again" id="confirmEnter" type="button">Connect &amp; Pay</button>
+    <button class="ghostbtn" id="confirmBack" type="button">Cancel</button>
+  </div></div>
+
+  <!-- Score-posted sheet -->
+  <div class="sheet" id="postedSheet"><div class="panel">
+    <h2>Score posted!</h2>
+    <p id="posted-text"></p>
+    <a class="ghostbtn" id="viewLb" href="https://dig.finnstergram.com/leaderboard.html" target="_blank" rel="noopener">View leaderboard →</a>
+    <button class="again" id="againBtn" type="button">Play again (25 OIL)</button>
+  </div></div>
+
+<script>
+"use strict";
+/* ==========================================================================
+   BOTFORD — FinnBots.  ENGINE (Free gameplay).  BOULDER-DASH CAVE LOOP.
+   A discrete 10 Hz grid cave. Bot 106 digs scrap, drops/pushes drums, collects
+   the Bead quota, then reaches the flashing BAY before TIME hits 0. Drums and
+   Beads share one gravity brain (STILL / FALLING): they fall into void and roll
+   off rounded things (still drum, still Bead, brick). Sparks (clockwise) and
+   Tickflies (counter-clockwise) hug walls and kill on touch; a falling drum on a
+   Tickfly bursts into Beads, on a Spark into void. Spill (amoeba) grows — box it
+   into Beads or it turns to drums. The Grate (magic wall) trades falling drums
+   for Beads for 20s. Eight hand-built caves A–H, 3 lives, cave restart on death.
+   The engine references NO wallet/RPC/memo/money symbol. Contract for the Paid
+   layer: window.BotFordEngine {start,idle,resumeFree,next,continueRun,state};
+   hands the run result to the Paid layer via onRunEnd. Every number lives in a
+   named const below. Exports { newRun, stepGame, ... } for headless verification.
+   ========================================================================== */
+
+/* ---- CFG: single per-game source of truth -------------------------------- */
+const CFG = {
+  name:'BotFord', memoNS:'BOTF', chassis:'sink-leaderboard',
+  subdomain:'dig.finnstergram.com', port:9013,
+  hero:106, accent:'#3a6ff7', danger:'#f2a03d',
+  entryOIL:25, scorePost:1,
+};
+
+/* ---- grid + clock -------------------------------------------------------- */
+const W=40, H=22, TS=16;
+const TICK_MS=100;                 // TICK_HZ = 10
+const LIVES = { start:3, continues:3, extraEvery:500 };
+const GRATE = { ticks:200 };       // magic-wall window = 20 s @ 10 Hz
+const EXPL  = { ticks:3 };         // explosion animation length
+const SPILL = { max:200 };         // >= this many spill cells -> drums
+
+/* ---- tile codes + glyph map --------------------------------------------- */
+const T = { STEEL:0, BRICK:1, SCRAP:2, VOID:3, DRUM:4, BEAD:5, BOT:6,
+            SPARK:7, TICK:8, SPILL:9, GRATE:10, BAY:11, EXPL:12 };
+const GLYPH = { '#':T.STEEL, '=':T.BRICK, '.':T.SCRAP, ' ':T.VOID, 'o':T.DRUM,
+                'B':T.BEAD, '@':T.BOT, 'S':T.SPARK, 'T':T.TICK, '~':T.SPILL,
+                'E':T.GRATE, 'X':T.BAY };
+const DV = [[0,-1],[1,0],[0,1],[-1,0]];   // 0=up 1=right 2=down 3=left (clockwise)
+function idx(x,y){ return y*W+x; }
+function inb(x,y){ return x>=0&&x<W&&y>=0&&y<H; }
+
+/* ---- cave authoring helpers --------------------------------------------- */
+function baseRows(fill){ const r=[]; for(let y=0;y<H;y++) r.push(fill.repeat(W)); return r; }
+function setc(r,x,y,ch){ if(!inb(x,y)) return; const a=r[y].split(''); a[x]=ch; r[y]=a.join(''); }
+function hline(r,x0,x1,y,ch){ for(let x=x0;x<=x1;x++) setc(r,x,y,ch); }
+function vline(r,x,y0,y1,ch){ for(let y=y0;y<=y1;y++) setc(r,x,y,ch); }
+function rect(r,x0,y0,x1,y1,ch){ for(let y=y0;y<=y1;y++) for(let x=x0;x<=x1;x++) setc(r,x,y,ch); }
+function scatter(r,list,ch){ list.forEach(function(p){ setc(r,p[0],p[1],ch); }); }
+// Force 40x22 dimensions + a solid steel border, whatever the interior looks like.
+function frame(r){ const out=[];
+  for(let y=0;y<H;y++){ let a=(r[y]||'').padEnd(W,' ').slice(0,W).split('');
+    for(let x=0;x<W;x++) if(y===0||y===H-1||x===0||x===W-1) a[x]='#';
+    out.push(a.join('')); }
+  return out;
+}
+
+/* ---- the eight caves (spec §11) ----------------------------------------- */
+function caveA(){ const r=baseRows('.');           // INTRO — dig, don't stand under a drum, find the bay
+  setc(r,2,2,'@');
+  scatter(r,[[6,4],[12,3],[18,5],[24,3],[30,6],[10,14],[20,16],[30,15],[15,10]],'B');
+  scatter(r,[[8,2],[8,3],[16,2],[26,2],[26,3],[34,2]],'o');
+  setc(r,34,3,' '); setc(r,34,4,' ');            // drop under a drum -> it falls
+  rect(r,4,8,12,9,' ');                            // a little cavern
+  setc(r,36,20,'X');
+  return { rows:frame(r), needed:6, time:150, val:10, extra:15 };
+}
+function caveB(){ const r=baseRows('.');           // ROOMS — push a drum through the gap into the next room
+  setc(r,2,2,'@');
+  [10,20,30].forEach(function(wx){ vline(r,wx,1,20,'='); rect(r,wx+1,9,wx+2,11,' '); setc(r,wx,10,'o'); });
+  scatter(r,[[5,5],[7,15],[15,5],[16,15],[25,6],[26,16],[34,5],[35,15],[33,10]],'B');
+  setc(r,36,20,'X');
+  return { rows:frame(r), needed:8, time:150, val:10, extra:15 };
+}
+function caveC(){ const r=baseRows('=');           // MAZE — brick walls, scrap corridors, route + timer
+  [2,6,10,14,18].forEach(function(y){ hline(r,1,38,y,'.'); });
+  vline(r,2,2,6,'.'); vline(r,37,6,10,'.'); vline(r,2,10,14,'.'); vline(r,37,14,18,'.'); vline(r,20,2,18,'.');
+  setc(r,2,2,'@');
+  scatter(r,[[6,2],[12,2],[18,2],[26,6],[32,6],[8,10],[14,10],[28,10],[34,10],[6,14],[24,14],[10,18],[30,18],[16,6]],'B');
+  setc(r,37,18,'X');
+  return { rows:frame(r), needed:12, time:180, val:10, extra:15 };
+}
+function caveD(){ const r=baseRows('.');           // TICKFLIES — quota > placed Beads, must drop drums on tickflies
+  setc(r,2,2,'@');
+  scatter(r,[[5,18],[9,18],[13,18],[26,18],[30,18],[34,18]],'B');   // only 6 placed; needed 10
+  [8,18,28].forEach(function(cx){
+    rect(r,cx,10,cx+4,13,'=');                     // brick pit
+    rect(r,cx+1,10,cx+3,12,' ');                   // hollow, open top
+    setc(r,cx+2,12,'T');                           // tickfly at the pit floor
+    setc(r,cx+2,8,'o');                            // drum on a scrap shelf above (support = scrap at cy-1)
+  });
+  setc(r,36,20,'X');
+  return { rows:frame(r), needed:10, time:150, val:20, extra:30 };
+}
+function caveE(){ const r=baseRows('.');           // GUARDS — sparks patrol lanes in front of Beads
+  setc(r,2,2,'@');
+  [6,11,16].forEach(function(y){ hline(r,3,36,y,' '); });
+  scatter(r,[[10,6,'S'],[25,11,'S'],[15,16,'S']],null); // placeholder; set below
+  setc(r,10,6,'S'); setc(r,25,11,'S'); setc(r,15,16,'S');
+  scatter(r,[[34,6],[5,6],[34,11],[6,11],[34,16],[6,16],[20,3],[20,19]],'B');
+  rect(r,28,18,32,20,'='); setc(r,29,19,'B'); setc(r,30,19,'B'); setc(r,31,19,'B');
+  setc(r,30,17,'o');                               // drum near the vault (optional blast)
+  setc(r,36,20,'X');
+  return { rows:frame(r), needed:8, time:150, val:10, extra:15 };
+}
+function caveF(){ const r=baseRows('.');           // SPILL — plug the box so the amoeba suffocates into Beads
+  setc(r,2,2,'@');
+  rect(r,16,8,24,14,'=');                          // brick box
+  rect(r,17,9,23,13,' ');                          // hollow interior (void)
+  setc(r,20,8,' '); setc(r,20,9,' ');              // top gap the spill can escape through
+  setc(r,20,11,'~');                               // spill seed inside
+  setc(r,20,6,'o');                                // drum on a scrap plug above the gap (dig support -> plugs)
+  scatter(r,[[5,18],[9,18],[13,18],[30,18]],'B');  // only 4 placed; needed 15
+  setc(r,36,20,'X');
+  return { rows:frame(r), needed:15, time:180, val:10, extra:15, spillRate:14 };
+}
+function caveG(){ const r=baseRows('.');           // BLAST — drop a drum on the spark to eat the brick vault
+  setc(r,2,2,'@');
+  rect(r,24,10,32,16,'='); rect(r,25,11,31,15,'B');// Beads sealed in solid brick
+  setc(r,23,11,'S');                               // spark beside the vault brick
+  setc(r,23,10,' ');                               // fall path
+  setc(r,23,8,'o');                                // drum on scrap plug (dig support -> drops on spark)
+  scatter(r,[[5,18],[9,18],[13,18]],'B');          // only 3 outside; needed 10
+  setc(r,36,20,'X');
+  return { rows:frame(r), needed:10, time:150, val:10, extra:15 };
+}
+function caveH(){ const r=baseRows('.');           // GRATE — convert a column of drums into Beads within 20s
+  setc(r,2,2,'@');
+  hline(r,10,29,12,'E');                           // magic-wall line
+  [11,15,19,23,27].forEach(function(cx){ setc(r,cx,8,'o'); setc(r,cx,9,'o'); setc(r,cx,10,'o'); setc(r,cx,11,'.'); });
+  rect(r,8,13,31,17,' ');                          // receiving void under the grate
+  hline(r,8,31,18,'=');                            // brick catch floor
+  scatter(r,[[3,19],[5,19],[37,19]],'B');          // only 3 placed; needed 12
+  setc(r,36,20,'X');
+  return { rows:frame(r), needed:12, time:180, val:20, extra:40 };
+}
+const CAVES = [caveA(),caveB(),caveC(),caveD(),caveE(),caveF(),caveG(),caveH()];
+
+/* ---- run + cave state --------------------------------------------------- */
+function loadCave(s, ci){
+  const c = CAVES[ci];
+  s.g=new Int8Array(W*H); s.fall=new Uint8Array(W*H); s.dir=new Int8Array(W*H);
+  s.explT=new Uint8Array(W*H); s.explR=new Int8Array(W*H); s.explR.fill(T.VOID);
+  s._scan=new Uint8Array(W*H); s._escan=new Uint8Array(W*H);
+  for(let y=0;y<H;y++) for(let x=0;x<W;x++){
+    const ch=c.rows[y][x]; const code=(GLYPH[ch]!==undefined)?GLYPH[ch]:T.SCRAP; const i=idx(x,y);
+    if(code===T.BOT){ s.bx=x; s.by=y; s.g[i]=T.BOT; }
+    else if(code===T.SPARK){ s.g[i]=T.SPARK; s.dir[i]=3; }
+    else if(code===T.TICK){ s.g[i]=T.TICK; s.dir[i]=1; }
+    else if(code===T.BAY){ s.g[i]=T.BAY; s.bayX=x; s.bayY=y; }
+    else s.g[i]=code;
+  }
+  s.needed=c.needed; s.timeLeft=c.time; s.val=c.val; s.extra=c.extra;
+  s.have=0; s.bayOpen=false; s.tickCount=0; s.acc=0; s.flash=0; s.face=1;
+  s.grateStarted=false; s.grateEndsAt=0;
+  s.spillRate=c.spillRate||0; s.spillTick=0; s.hasSpill=false;
+  for(let i=0;i<W*H;i++) if(s.g[i]===T.SPILL){ s.hasSpill=true; break; }
+  s.inDX=0; s.inDY=0; s.inFire=false;
+  s.phase='play';
+}
+function newRun(){
+  const s={ phase:'play', cave:0, lives:LIVES.start, continues:LIVES.continues,
+            score:0, nextExtra:LIVES.extraEvery, totalBeads:0, timeMs:0, acc:0 };
+  loadCave(s,0);
+  return s;
+}
+function nextCave(s){ if(s.phase!=='clear') return; loadCave(s, s.cave); }
+function continueRun(s){ if(s.phase!=='dead' || s.continues<=0) return false;
+  s.continues--; s.lives=LIVES.start; loadCave(s, s.cave); return true; }
+
+/* ---- tile helpers ------------------------------------------------------- */
+function rounded(t){ return t===T.DRUM || t===T.BEAD || t===T.BRICK; }
+function moveBotTo(s,nx,ny){ s.g[idx(s.bx,s.by)]=T.VOID; s.bx=nx; s.by=ny; s.g[idx(nx,ny)]=T.BOT; }
+
+/* ---- player ------------------------------------------------------------- */
+function collectBead(s){ const v=(s.have<s.needed)?s.val:s.extra; s.have++; s.totalBeads++;
+  s.score+=v; s._ev.collect=true; if(!s.bayOpen && s.have>=s.needed) openBay(s); }
+function openBay(s){ s.bayOpen=true; s.flash=1; s._ev.quota=true; }
+function caveClear(s){ s.score+=Math.max(0,s.timeLeft); s._ev.clear=true;
+  if(s.cave+1>=CAVES.length){ s.phase='won'; s._ev.won=true; }
+  else { s.cave++; s.phase='clear'; } }
+
+function playerAct(s){
+  let dx=s.inDX, dy=s.inDY;
+  if(dx===0 && dy===0) return;
+  if(dx!==0 && dy!==0) dy=0;                      // no diagonal
+  s.face = dx<0?-1:(dx>0?1:s.face);
+  const tx=s.bx+dx, ty=s.by+dy; if(!inb(tx,ty)) return;
+  const ti=idx(tx,ty), t=s.g[ti], fire=s.inFire;
+  if(t===T.STEEL||t===T.BRICK||t===T.GRATE||t===T.EXPL) return;
+  if(t===T.SPARK||t===T.TICK){ botDie(s); return; }
+  if(t===T.BAY){ if(s.bayOpen) caveClear(s); return; }
+  if(t===T.DRUM){                                 // push (horizontal, still drum, void beyond)
+    if(dy!==0 || s.fall[ti]) return;
+    const bx2=tx+dx; if(!inb(bx2,ty)) return; const bi2=idx(bx2,ty);
+    if(s.g[bi2]!==T.VOID) return;
+    s.g[bi2]=T.DRUM; s.fall[bi2]=0; s.g[ti]=T.VOID; s._ev.push=true;
+    if(!fire) moveBotTo(s,tx,ty);
+    return;
+  }
+  if(t===T.SCRAP){ s.g[ti]=T.VOID; s._ev.dig=true; if(!fire) moveBotTo(s,tx,ty); return; }
+  if(t===T.BEAD){ collectBead(s); s.g[ti]=T.VOID; if(!fire) moveBotTo(s,tx,ty); return; }
+  if(t===T.VOID || t===T.SPILL){ if(!fire) moveBotTo(s,tx,ty); return; }
+}
+
+/* ---- drum / Bead physics (one shared brain) ----------------------------- */
+function moveStone(s,from,to,sc){ s.g[to]=s.g[from]; s.g[from]=T.VOID; s.fall[from]=0; s.fall[to]=1; sc[to]=1; }
+function rollOff(s,i,x,y,sc){                      // try to roll off a rounded thing below
+  if(s.g[idx(x-1,y)]===T.VOID && s.g[idx(x-1,y+1)]===T.VOID){ const wf=s.fall[i]; moveStone(s,i,idx(x-1,y),sc); if(!wf) s._ev.startfall=true; return true; }
+  if(s.g[idx(x+1,y)]===T.VOID && s.g[idx(x+1,y+1)]===T.VOID){ const wf=s.fall[i]; moveStone(s,i,idx(x+1,y),sc); if(!wf) s._ev.startfall=true; return true; }
+  return false;
+}
+function settle(s,i){ if(s.fall[i]){ s.fall[i]=0; s._ev.land=true; } }
+function stepStone(s,x,y,i,sc){
+  const wf=s.fall[i]===1;
+  const belowI=idx(x,y+1), bt=s.g[belowI];
+  if(bt===T.VOID){ moveStone(s,i,belowI,sc); if(!wf) s._ev.startfall=true; return; }
+  if(bt===T.BOT){ if(wf){ botDie(s); } else settle(s,i); return; }
+  if(bt===T.SPARK||bt===T.TICK){ if(wf){ explode(s,x,y+1,(bt===T.TICK)?T.BEAD:T.VOID); s._ev.expl=true; } else settle(s,i); return; }
+  if(bt===T.GRATE){ handleGrate(s,i,x,y,belowI,sc,wf); return; }
+  if(rounded(bt)){ if(rollOff(s,i,x,y,sc)) return; }
+  settle(s,i);
+}
+function handleGrate(s,i,x,y,belowI,sc,wasFalling){
+  if(!wasFalling){ if(!rollOff(s,i,x,y,sc)) settle(s,i); return; }  // resting on grate == resting on brick
+  if(!s.grateStarted){ s.grateStarted=true; s.grateEndsAt=s.tickCount+GRATE.ticks; }
+  if(s.tickCount < s.grateEndsAt){                 // active window: convert + pass through
+    const isBead=(s.g[i]===T.BEAD); const outI=idx(x,y+2);
+    s.g[i]=T.VOID; s.fall[i]=0;
+    if(inb(x,y+2) && s.g[outI]===T.VOID){ s.g[outI]= isBead?T.DRUM:T.BEAD; s.fall[outI]=1; sc[outI]=1; s._ev.startfall=true; }
+    return;                                        // (blocked exit -> stone consumed)
+  }
+  if(!rollOff(s,i,x,y,sc)) settle(s,i);            // dead grate == brick
+}
+function physicsScan(s){
+  const sc=s._scan; sc.fill(0);
+  for(let y=0;y<H;y++) for(let x=0;x<W;x++){
+    const i=idx(x,y); if(sc[i]) continue;
+    const t=s.g[i]; if(t!==T.DRUM && t!==T.BEAD) continue;
+    stepStone(s,x,y,i,sc);
+    if(s.phase!=='play') return;
+  }
+}
+
+/* ---- explosions --------------------------------------------------------- */
+function explode(s,cx,cy,res){                     // 3x3, eats everything but steel
+  for(let dy=-1;dy<=1;dy++) for(let dx=-1;dx<=1;dx++){
+    const x=cx+dx, y=cy+dy; if(!inb(x,y)) continue; const i=idx(x,y);
+    if(s.g[i]===T.STEEL) continue;
+    s.g[i]=T.EXPL; s.fall[i]=0; s.dir[i]=0; s.explT[i]=EXPL.ticks; s.explR[i]=res;
+  }
+}
+function explAge(s){
+  for(let i=0;i<W*H;i++){ if(s.explT[i]>0){ s.explT[i]--; if(s.explT[i]===0){ s.g[i]=s.explR[i]; if(s.g[i]===T.EXPL) s.g[i]=T.VOID; } } }
+}
+function botDie(s){
+  explode(s, s.bx, s.by, T.VOID); s._ev.death=true;
+  s.lives--;
+  if(s.lives<=0){ s.phase='dead'; return; }
+  loadCave(s, s.cave);                             // cave restart on death (score/lives/cave kept on s)
+}
+
+/* ---- Sparks + Tickflies (wall-huggers) ---------------------------------- */
+function moveEnemy(s,x,y,i,type,sc){
+  const d=s.dir[i];
+  // Spark tries CCW-left first (keeps a wall on its left); Tickfly mirrors.
+  const order = (type===T.SPARK) ? [ (d+3)%4, d, (d+1)%4, (d+2)%4 ]
+                                 : [ (d+1)%4, d, (d+3)%4, (d+2)%4 ];
+  for(let k=0;k<order.length;k++){
+    const nd=order[k], nx=x+DV[nd][0], ny=y+DV[nd][1];
+    if(!inb(nx,ny)) continue; const ni=idx(nx,ny);
+    if(s.g[ni]===T.VOID){ s.g[i]=T.VOID; s.dir[i]=0; s.g[ni]=type; s.dir[ni]=nd; sc[ni]=1; return; }
+  }
+  // boxed in: keep facing, wait
+}
+function enemyAdjToBot(s){
+  const b=[idx(s.bx,s.by-1),idx(s.bx+1,s.by),idx(s.bx,s.by+1),idx(s.bx-1,s.by)];
+  for(let n=0;n<4;n++){ const t=s.g[b[n]]; if(t===T.SPARK||t===T.TICK) return true; }
+  return false;
+}
+function enemyScan(s){
+  const sc=s._escan; sc.fill(0);
+  if(enemyAdjToBot(s)){ botDie(s); return; }         // spec: adjacency kills "after moving OR before"
+  for(let y=0;y<H;y++) for(let x=0;x<W;x++){
+    const i=idx(x,y); if(sc[i]) continue;
+    const t=s.g[i]; if(t!==T.SPARK && t!==T.TICK) continue;
+    moveEnemy(s,x,y,i,t,sc);
+  }
+  // contacts: adjacent to Bot kills Bot; adjacent to Spill kills the enemy
+  const kill=[];
+  for(let y=1;y<H-1;y++) for(let x=1;x<W-1;x++){
+    const t=s.g[idx(x,y)]; if(t!==T.SPARK && t!==T.TICK) continue;
+    const nb=[idx(x,y-1),idx(x+1,y),idx(x,y+1),idx(x-1,y)];
+    let spill=false;
+    for(let n=0;n<4;n++){ if(s.g[nb[n]]===T.BOT){ botDie(s); return; } if(s.g[nb[n]]===T.SPILL) spill=true; }
+    if(spill) kill.push([x,y,(t===T.TICK)?T.BEAD:T.VOID]);
+  }
+  for(let k=0;k<kill.length;k++){ const e=kill[k], g=s.g[idx(e[0],e[1])];
+    if(g===T.SPARK||g===T.TICK){ explode(s,e[0],e[1],e[2]); s._ev.expl=true; } }
+}
+
+/* ---- Spill (amoeba) ----------------------------------------------------- */
+function spillStep(s){
+  if(!s.hasSpill) return;
+  s.spillTick++;
+  const interval=Math.max(2, (s.spillRate||12) - Math.floor(s.tickCount/120));
+  if(s.spillTick < interval) return;
+  s.spillTick=0;
+  const cells=[];
+  for(let y=1;y<H-1;y++) for(let x=1;x<W-1;x++){ if(s.g[idx(x,y)]===T.SPILL) cells.push([x,y]); }
+  if(!cells.length) return;
+  const c=cells[(Math.random()*cells.length)|0];
+  const ns=[];
+  for(let n=0;n<4;n++){ const nx=c[0]+DV[n][0], ny=c[1]+DV[n][1]; if(!inb(nx,ny)) continue;
+    const t=s.g[idx(nx,ny)]; if(t===T.SCRAP||t===T.VOID) ns.push([nx,ny]); }
+  if(ns.length){ const g=ns[(Math.random()*ns.length)|0]; s.g[idx(g[0],g[1])]=T.SPILL; }
+}
+function spillEndStates(s){
+  if(!s.hasSpill) return;
+  let count=0, canGrow=false;
+  for(let y=1;y<H-1;y++) for(let x=1;x<W-1;x++){ const i=idx(x,y); if(s.g[i]!==T.SPILL) continue; count++;
+    const nb=[idx(x,y-1),idx(x+1,y),idx(x,y+1),idx(x-1,y)];
+    for(let n=0;n<4;n++){ const t=s.g[nb[n]]; if(t===T.SCRAP||t===T.VOID){ canGrow=true; } } }
+  if(count===0){ s.hasSpill=false; return; }
+  if(count>=SPILL.max){ for(let i=0;i<W*H;i++) if(s.g[i]===T.SPILL){ s.g[i]=T.DRUM; s.fall[i]=0; } s.hasSpill=false; s._ev.land=true; }
+  else if(!canGrow){ for(let i=0;i<W*H;i++) if(s.g[i]===T.SPILL){ s.g[i]=T.BEAD; s.fall[i]=0; } s.hasSpill=false; s._ev.quota=true; }
+}
+
+/* ---- one 10 Hz tick ----------------------------------------------------- */
+function doTick(s){
+  const ev={}; s._ev=ev;
+  if(s.phase!=='play') return ev;
+  playerAct(s);      if(s.phase!=='play') return ev;
+  physicsScan(s);    if(s.phase!=='play') return ev;
+  enemyScan(s);      if(s.phase!=='play') return ev;
+  spillStep(s);
+  explAge(s);
+  s.tickCount++;
+  if(s.tickCount%10===0){
+    s.timeLeft--;
+    if(s.timeLeft<=10 && s.timeLeft>0) ev.lowtime=true;
+    spillEndStates(s);
+    if(s.timeLeft<=0){ botDie(s); return ev; }
+  }
+  if(!s.bayOpen && s.have>=s.needed) openBay(s);
+  while(s.score>=s.nextExtra){ s.lives++; s.nextExtra+=LIVES.extraEvery; ev.extra=true; }
+  return ev;
+}
+
+/* stepGame — advance real time; run whole 10 Hz ticks; OR the events together. */
+function stepGame(s, dtMs){
+  const acc={};
+  if(s.phase!=='play'){ s.acc=0; return acc; }
+  s.timeMs+=dtMs; s.acc+=dtMs; let guard=0;
+  while(s.acc>=TICK_MS && s.phase==='play' && guard<8){
+    s.acc-=TICK_MS; guard++;
+    const ev=doTick(s)||{};
+    for(const k in ev) if(ev[k]) acc[k]=true;
+  }
+  return acc;
+}
+
+/* ---- headless export (verify termination sim) --------------------------- */
+const HEADLESS = (typeof document === 'undefined');
+if(HEADLESS){
+  module.exports = { CFG, W, H, T, GLYPH, CAVES, LIVES, GRATE, SPILL,
+                     newRun, stepGame, doTick, loadCave, nextCave, continueRun };
+}
+
+/* ======================= DOM / RENDER / INPUT (browser) =================== */
+if(!HEADLESS){
+(function(){
+  const cv=document.getElementById('game'), ctx=cv.getContext('2d');
+  ctx.imageSmoothingEnabled=false;
+  const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Fit the canvas to the largest 40:22 rectangle that fits the play surface,
+  // so the cave maximises the screen in BOTH orientations (landscape = biggest).
+  function fitCanvas(){ const box=cv.parentElement.getBoundingClientRect();
+    const ar=W/H; let w=box.width, h=w/ar; if(h>box.height){ h=box.height; w=h*ar; }
+    cv.style.width=Math.max(80,Math.floor(w))+'px'; cv.style.height=Math.max(44,Math.floor(h))+'px'; }
+  addEventListener('resize',fitCanvas); addEventListener('orientationchange',function(){ setTimeout(fitCanvas,60); });
+  fitCanvas(); setTimeout(fitCanvas,120); if(document.fonts&&document.fonts.ready) document.fonts.ready.then(fitCanvas);
+
+  let s=newRun();
+  let active=true;                 // Free auto-plays; Paid idles until entry
+  let anim=0;                      // frame counter for blink + pulses
+
+  /* ---- audio -------------------------------------------------------------*/
+  let ac=null;
+  function tone(freq,dur,type,gain){ if(reduce) return; try{ ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+    const o=ac.createOscillator(), g=ac.createGain(); o.type=type||'square'; o.connect(g); g.connect(ac.destination);
+    o.frequency.value=freq; g.gain.value=gain||0.03; o.start();
+    g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime+dur); o.stop(ac.currentTime+dur+0.02);
+  }catch(e){} }
+  function noise(dur){ if(reduce) return; try{ ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+    const n=Math.floor(ac.sampleRate*dur), buf=ac.createBuffer(1,n,ac.sampleRate), d=buf.getChannelData(0);
+    for(let i=0;i<n;i++) d[i]=(Math.random()*2-1)*(1-i/n); const src=ac.createBufferSource(); src.buffer=buf;
+    const g=ac.createGain(); g.gain.value=0.06; src.connect(g); g.connect(ac.destination); src.start();
+  }catch(e){} }
+  function sfx(ev){
+    if(ev.quota){ tone(660,0.09,'square',0.04); setTimeout(function(){tone(880,0.09);},70); setTimeout(function(){tone(1180,0.12);},150); }
+    else if(ev.collect){ tone(760+Math.min(400,s.have*24),0.09,'sine',0.045); }
+    if(ev.death){ tone(300,0.14,'sawtooth',0.05); setTimeout(function(){tone(150,0.2,'sawtooth',0.05);},120); }
+    if(ev.extra){ tone(523,0.09); setTimeout(function(){tone(659,0.09);},90); setTimeout(function(){tone(784,0.14);},180); }
+    if(ev.expl) noise(0.18);
+    if(ev.push) tone(220,0.06,'sawtooth',0.03);
+    if(ev.land) tone(150,0.05,'square',0.035);
+    if(ev.startfall) tone(320,0.03,'square',0.02);
+    if(ev.dig) tone(420,0.02,'triangle',0.02);
+    if(ev.lowtime) tone(900,0.05,'square',0.03);
+  }
+
+  /* ---- overlays ----------------------------------------------------------*/
+  const rulesO=document.getElementById('rulesOverlay');
+  const overO=document.getElementById('overOverlay');
+  const caveO=document.getElementById('caveOverlay');
+  const paidO=document.getElementById('paidOverlay');
+  const infoBtn=document.getElementById('infoBtn');
+  function openRules(){ rulesO.classList.add('show'); document.getElementById('rulesClose').focus(); }
+  function closeRules(){ rulesO.classList.remove('show'); infoBtn.focus(); }
+  infoBtn.onclick=openRules;
+  document.getElementById('rulesClose').onclick=closeRules;
+  rulesO.addEventListener('click',function(e){ if(e.target===rulesO) closeRules(); });
+
+  function pad(n,w){ return String(n).padStart(w,'0'); }
+  function mmss(ms){ const t=Math.floor(ms/1000); return Math.floor(t/60)+':'+pad(t%60,2); }
+
+  function showOver(){
+    const win=(s.phase==='won');
+    document.getElementById('overTitle').textContent = win ? 'VAULT CLEAR' : 'SHIFT OVER';
+    document.getElementById('overCard').classList.toggle('win', win);
+    document.getElementById('oScore').textContent=String(s.score);
+    document.getElementById('oCave').textContent=String(win?CAVES.length:(s.cave+1));
+    document.getElementById('oBeads').textContent=String(s.totalBeads);
+    document.getElementById('oTime').textContent=mmss(s.timeMs);
+    const cont=document.getElementById('continueBtn');
+    cont.hidden = win || s.continues<=0;
+    cont.textContent = 'Continue ('+s.continues+')';
+    overO.classList.add('show');
+    document.getElementById('retryBtn').focus();
+  }
+  function fullRestart(){ overO.classList.remove('show'); s=newRun(); active=true; prevPhase='play'; }
+  document.getElementById('retryBtn').onclick=fullRestart;
+  document.getElementById('continueBtn').onclick=function(){ if(continueRun(s)){ overO.classList.remove('show'); active=true; prevPhase='play'; } };
+
+  function showCaveClear(){
+    document.getElementById('caveTitle').textContent='BAY OPEN';
+    document.getElementById('cBonus').textContent=String(Math.max(0,s.timeLeft));
+    document.getElementById('caveSub').textContent='Cleared cave '+s.cave+' — into cave '+(s.cave+1)+'.';
+    caveO.classList.add('show'); document.getElementById('nextBtn').focus();
+  }
+  document.getElementById('nextBtn').onclick=function(){ caveO.classList.remove('show'); nextCave(s); active=true; prevPhase='play'; };
+
+  /* ---- HUD ---------------------------------------------------------------*/
+  const elBeads=document.getElementById('beads'), elVal=document.getElementById('val'),
+        elTime=document.getElementById('time'), elScore=document.getElementById('score'),
+        elLives=document.getElementById('lives');
+  let livesShown=-1;
+  function syncHUD(){
+    elBeads.textContent=s.have+'/'+s.needed;
+    elVal.textContent=(s.have>=s.needed?s.extra:s.val);
+    elTime.textContent=Math.max(0,s.timeLeft);
+    elTime.classList.toggle('warn', s.timeLeft<=10);
+    elScore.textContent=pad(s.score,6);
+    if(s.lives!==livesShown){ livesShown=s.lives; elLives.innerHTML='';
+      const n=Math.min(s.lives,8); for(let i=0;i<n;i++){ const d=document.createElement('span'); d.className='life'; elLives.appendChild(d); }
+      if(s.lives>8){ const e=document.createElement('span'); e.textContent='+'+(s.lives-8); e.style.fontSize='12px'; elLives.appendChild(e); }
+    }
+  }
+
+  /* ---- render ------------------------------------------------------------*/
+  const A=CFG.accent, D=CFG.danger;
+  function drawTile(t,px,py,x,y){
+    switch(t){
+      case T.STEEL: ctx.fillStyle='#41414d'; ctx.fillRect(px,py,TS,TS);
+        ctx.fillStyle='#5a5a6a'; ctx.fillRect(px+1,py+1,TS-2,2); ctx.fillStyle='#2b2b34'; ctx.fillRect(px+1,py+TS-3,TS-2,2); break;
+      case T.BRICK: ctx.fillStyle='#8a4a2c'; ctx.fillRect(px,py,TS,TS);
+        ctx.strokeStyle='#5e3320'; ctx.lineWidth=1; ctx.beginPath();
+        ctx.moveTo(px,py+8); ctx.lineTo(px+TS,py+8); ctx.moveTo(px+8,py); ctx.lineTo(px+8,py+8); ctx.moveTo(px+4,py+8); ctx.lineTo(px+4,py+TS); ctx.moveTo(px+12,py+8); ctx.lineTo(px+12,py+TS); ctx.stroke(); break;
+      case T.SCRAP: ctx.fillStyle='#5a4636'; ctx.fillRect(px,py,TS,TS);
+        ctx.fillStyle='#6c5442'; ctx.fillRect(px+3,py+4,2,2); ctx.fillRect(px+9,py+7,2,2); ctx.fillRect(px+6,py+11,2,2); ctx.fillRect(px+12,py+3,2,2); break;
+      case T.VOID: break;
+      case T.DRUM: ctx.fillStyle='#2c2c34'; ctx.fillRect(px+1,py+1,TS-2,TS-2);
+        ctx.fillStyle='#565663'; ctx.fillRect(px+1,py+4,TS-2,2); ctx.fillRect(px+1,py+10,TS-2,2);
+        ctx.fillStyle='#71717f'; ctx.fillRect(px+3,py+2,2,TS-4); break;
+      case T.BEAD: { const cx=px+8, cy=py+8;
+        ctx.beginPath(); ctx.moveTo(cx,py+2); ctx.lineTo(px+13,cy); ctx.lineTo(cx,py+14); ctx.lineTo(px+3,cy); ctx.closePath();
+        ctx.fillStyle=D; ctx.fill(); ctx.fillStyle='rgba(255,255,255,.75)'; ctx.fillRect(cx-2,cy-3,2,3); break; }
+      case T.SPARK: face(px,py,'#c0392b','#ff8b7a'); break;
+      case T.TICK: face(px,py,'#2f9e56','#7ff0a6'); break;
+      case T.SPILL: ctx.fillStyle='#7a7f1e'; ctx.fillRect(px,py,TS,TS);
+        ctx.fillStyle='#9aa02c'; const ph=(anim+x*3+y*5); ctx.beginPath(); ctx.arc(px+5+((ph)%3),py+6,2.5,0,7); ctx.arc(px+11,py+10-((ph)%3),2,0,7); ctx.fill(); break;
+      case T.GRATE: { const active=s.grateStarted && s.tickCount<s.grateEndsAt;
+        ctx.fillStyle=active?'#9a6a3c':'#8a4a2c'; ctx.fillRect(px,py,TS,TS);
+        ctx.strokeStyle=active?'#f2d08a':'#5e3320'; ctx.lineWidth=1; ctx.beginPath();
+        ctx.moveTo(px,py+8); ctx.lineTo(px+TS,py+8); ctx.moveTo(px+8,py); ctx.lineTo(px+8,py+8); ctx.moveTo(px+4,py+8); ctx.lineTo(px+4,py+TS); ctx.moveTo(px+12,py+8); ctx.lineTo(px+12,py+TS); ctx.stroke();
+        if(active && !reduce){ ctx.fillStyle='rgba(255,240,180,'+(0.3+0.25*Math.sin(anim*0.4))+')'; ctx.fillRect(px+2,py+2,TS-4,TS-4); } break; }
+      case T.BAY: if(s.bayOpen){ const pu=0.5+0.5*Math.sin(anim*0.25);
+          ctx.fillStyle='#123b1e'; ctx.fillRect(px,py,TS,TS);
+          ctx.fillStyle='rgba(120,240,160,'+(0.55+0.4*pu)+')'; ctx.fillRect(px+3,py+2,TS-6,TS-4);
+          ctx.fillStyle='#0a1f10'; ctx.fillRect(px+6,py+5,4,7);
+        } else { drawTile(T.STEEL,px,py,x,y); }
+        break;
+      case T.EXPL: ctx.fillStyle=(anim%2)?'#fff2c0':D; ctx.fillRect(px,py,TS,TS); break;
+    }
+  }
+  function face(px,py,body,eye){ ctx.fillStyle=body; ctx.fillRect(px+2,py+2,TS-4,TS-4);
+    ctx.fillStyle=eye; ctx.fillRect(px+5,py+6,2,2); ctx.fillRect(px+9,py+6,2,2);
+    ctx.fillStyle='#1a0000'; ctx.fillRect(px+5,py+10,6,1); }
+  function drawBot(px,py){
+    ctx.fillStyle=A; ctx.fillRect(px+2,py+1,TS-4,TS-2);
+    ctx.fillStyle='#22314f'; ctx.fillRect(px+2,py+1,TS-4,2);
+    // screen-face 106 with a two-frame blink
+    const blink=(Math.floor(anim/6)%6===0);
+    ctx.fillStyle='#dff0ff';
+    if(blink){ ctx.fillRect(px+5,py+7,2,1); ctx.fillRect(px+9,py+7,2,1); }
+    else {
+      if(s.face<0){ ctx.fillRect(px+4,py+6,3,3); ctx.fillRect(px+8,py+6,2,3); }
+      else { ctx.fillRect(px+6,py+6,2,3); ctx.fillRect(px+10,py+6,3,3); }
+    }
+    ctx.fillStyle='#0a1830'; ctx.fillRect(px+6,py+11,4,1);
+  }
+  function draw(){
+    ctx.fillStyle='#20150f'; ctx.fillRect(0,0,W*TS,H*TS);
+    for(let y=0;y<H;y++) for(let x=0;x<W;x++){
+      const t=s.g[idx(x,y)]; if(t===T.VOID) continue;
+      const px=x*TS, py=y*TS;
+      if(t===T.BOT) drawBot(px,py); else drawTile(t,px,py,x,y);
+    }
+    if(s.flash>0 && !reduce){ ctx.fillStyle='rgba(255,255,255,'+(s.flash)+')'; ctx.fillRect(0,0,W*TS,H*TS); }
+    else if(s.flash>0){ /* reduced-motion: no white flash */ }
+    if(s.timeLeft<=10 && s.phase==='play' && !reduce){ ctx.strokeStyle='rgba(192,57,43,'+(0.3+0.3*Math.sin(anim*0.5))+')'; ctx.lineWidth=4; ctx.strokeRect(2,2,W*TS-4,H*TS-4); }
+  }
+
+  /* ---- input: 4-way move + DIG (snap). A tap is latched so it survives to
+         the next 10 Hz tick even if the key/button is released first. --------*/
+  const held={u:false,d:false,l:false,r:false};
+  const stack=[];                                  // most-recent held direction wins (one dir/tick)
+  let pendingTap=null;                             // one-shot direction from a quick tap
+  let fireHeld=false;
+  function push(dir){ const i=stack.indexOf(dir); if(i>=0) stack.splice(i,1); stack.push(dir); }
+  function drop(dir){ const i=stack.indexOf(dir); if(i>=0) stack.splice(i,1); }
+  function setHeld(dir,on){ if(on){ if(!held[dir]){ held[dir]=true; push(dir); } pendingTap=dir; }
+    else { held[dir]=false; drop(dir); } }
+  function setFire(on){ fireHeld=!!on; }
+  // called once per 10 Hz tick to feed the engine (held wins; else a queued tap)
+  function setTickInput(){
+    if(!active){ s.inDX=0; s.inDY=0; s.inFire=false; return; }
+    const dir = stack.length ? stack[stack.length-1] : pendingTap;
+    s.inDX=0; s.inDY=0;
+    if(dir==='l') s.inDX=-1; else if(dir==='r') s.inDX=1; else if(dir==='u') s.inDY=-1; else if(dir==='d') s.inDY=1;
+    s.inFire=fireHeld;
+  }
+
+  function bindBtn(id,dir){ const el=document.getElementById(id); if(!el) return;
+    const on=function(e){ e.preventDefault(); el.classList.add('on'); setHeld(dir,true); };
+    const off=function(e){ e.preventDefault(); el.classList.remove('on'); setHeld(dir,false); };
+    el.addEventListener('pointerdown',on); el.addEventListener('pointerup',off);
+    el.addEventListener('pointerleave',off); el.addEventListener('pointercancel',off);
+  }
+  bindBtn('padU','u'); bindBtn('padD','d'); bindBtn('padL','l'); bindBtn('padR','r');
+  (function(){ const dig=document.getElementById('padDig');
+    const on=function(e){ e.preventDefault(); dig.classList.add('on'); setFire(true); };
+    const off=function(e){ e.preventDefault(); dig.classList.remove('on'); setFire(false); };
+    dig.addEventListener('pointerdown',on); dig.addEventListener('pointerup',off);
+    dig.addEventListener('pointerleave',off); dig.addEventListener('pointercancel',off);
+  })();
+
+  const KEYS={ ArrowUp:'u', ArrowDown:'d', ArrowLeft:'l', ArrowRight:'r',
+               Up:'u', Down:'d', Left:'l', Right:'r',
+               w:'u', s:'d', a:'l', d:'r', W:'u', S:'d', A:'l', D:'r' };
+  addEventListener('keydown',function(e){
+    if(e.key==='Escape'){ closeRules(); return; }
+    if(!active) return;
+    if(e.key===' '||e.key==='Spacebar'){ setFire(true); e.preventDefault(); return; }
+    const dir=KEYS[e.key]; if(dir){ setHeld(dir,true); e.preventDefault(); }
+  });
+  addEventListener('keyup',function(e){
+    if(e.key===' '||e.key==='Spacebar'){ setFire(false); return; }
+    const dir=KEYS[e.key]; if(dir){ setHeld(dir,false); }
+  });
+
+  /* ---- engine contract (Paid layer arms/observes a run) -----------------*/
+  function startRun(){ s=newRun(); active=true; prevPhase='play';
+    rulesO.classList.remove('show'); overO.classList.remove('show'); caveO.classList.remove('show'); paidO.classList.remove('show'); }
+  function idleForPaid(){ s=newRun(); active=false; }
+  function resumeFree(){ s=newRun(); active=true; prevPhase='play';
+    overO.classList.remove('show'); caveO.classList.remove('show'); }
+  window.BotFordEngine = { start:startRun, idle:idleForPaid, resumeFree:resumeFree,
+    next:function(){ caveO.classList.remove('show'); nextCave(s); active=true; prevPhase='play'; },
+    continueRun:function(){ return continueRun(s); }, state:function(){ return s; } };
+
+  function endRun(){
+    active=false; syncHUD();
+    const res={ score:s.score, cave:(s.phase==='won'?CAVES.length:s.cave+1), beads:s.totalBeads, timeMs:s.timeMs, won:(s.phase==='won') };
+    if(window.BotFordPaid && BotFordPaid.onRunEnd && BotFordPaid.onRunEnd(res)) return;
+    showOver();
+  }
+
+  /* ---- loop — browser drives the 10 Hz ticks so input is set per tick.
+         (stepGame stays the headless API used by the VERIFY termination sim.) --*/
+  let prevPhase='play';
+  let last=performance.now(), acc=0;
+  function frame(now){
+    let dt=now-last; last=now; if(dt>200)dt=200;
+    anim++;
+    if(active && s.phase==='play'){
+      acc+=dt; let guard=0;
+      while(acc>=TICK_MS && active && s.phase==='play' && guard<8){
+        acc-=TICK_MS; guard++;
+        setTickInput();
+        s.timeMs+=TICK_MS;
+        const ev=doTick(s)||{};
+        pendingTap=null;                 // a queued tap is consumed by this tick
+        if(Object.keys(ev).length) sfx(ev);
+        if(s.phase!=='play') break;
+      }
+    } else { acc=0; }
+    if(s.flash>0) s.flash=Math.max(0, s.flash - dt/300);
+    if(s.phase!=='play' && prevPhase==='play'){
+      if(s.phase==='clear'){ active=false; showCaveClear(); }
+      else if(s.phase==='dead' || s.phase==='won'){ endRun(); }
+    }
+    prevPhase=s.phase;
+    syncHUD(); draw();
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+}
+
+</script>
+
+<!-- Shared wallet libs (loaded once; the wallet LOGIC stays dead until Paid is chosen — mirrors live Mr Bot / Rush). -->
+<script src="phantom-deeplink-libs.min.js?v=20260906a"></script>
+<script src="phantom-mobile.js?v=20260906a"></script>
+<script src="solana-web3.iife.min.js?v=20260906a"></script>
+<script>
+/* ============================================================================
+ * BotFord — Paid layer. BOTF sink + fun leaderboard.
+ * The wallet MECHANICS below (getProvider, fetchOilBalance, buildTransferIx,
+ * buildMemoIx, confirmSignature, sendPayment, onConnect, resume) are LIFTED
+ * VERBATIM from the live Bot Jumper index.html (itself lifted from Mr Bot / Bot
+ * Merge Rush) — only CFG values, the BOTF memo tag / pending key / sign marker,
+ * and the score-memo shape change. The UI glue is BotFord's (single-run cave
+ * digger). BotFord is real-time and UNREPLAYABLE. The leaderboard is a FUN
+ * RANKING + an OIL SINK. It is NOT verified / provably fair. Records, does not
+ * verify.
+ * ==========================================================================*/
+(function(){
+  'use strict';
+  var mode = 'free';
+  function $(id){ return document.getElementById(id); }
+
+  function lockModeToggle(lock){
+    $('modeFree').disabled = !!lock;
+    $('modePaid').disabled = !!lock;
+  }
+
+  var Paid = (function(){
+    var TEST_MODE = true;     // <-- ships TEST for Localnet proof; flip to false ONLY with Founder confirm in this run's output
+    var CFG = TEST_MODE ? {
+      RPC: 'http://127.0.0.1:8899',
+      TOKEN_PROGRAM: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
+      MEMO_PROGRAM: 'MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr',
+      OIL_MINT: '9B5ZQifZQc3ykhnZhA9m8DFoNY5uaTwqHGNZMah6eK8Y',
+      TREASURY: '8tzZzNiGkE2kYXhUSauNEUyVHiaWBt5pBagg7CHKPNBM',
+      TREASURY_TOKEN_ACCOUNT: '3s1SQ7JZmti4PfhVsb7LCTn9q5ZhRBMaH6v2vsrVZeg6',
+      ENTRY_FEE: 25, POST_FEE: 1, DECIMALS: 2
+    } : {
+      RPC: 'https://finnbots-rpc.mart-kin1000.workers.dev',
+      TOKEN_PROGRAM: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
+      MEMO_PROGRAM: 'MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr',
+      OIL_MINT: 'HrcfXJcFdMoLfbkN5qCTSFrLsAgJNHitmwKc5AyS7xzf',
+      TREASURY: '75WPN3kwYUT5kdPU7V3Fp3LhnxmPC38bsgBCasRQdXMR',
+      TREASURY_TOKEN_ACCOUNT: '2ZBNMLZFfHCuZm9Lfc3b7ut296tRwGtapuXad7zSm1ED',
+      ENTRY_FEE: 25, POST_FEE: 1, DECIMALS: 2
+    };
+    var MEMO_TAG = 'BOTF';
+    var wallet = { pubkey:null, oil:0 };
+    var inited=false, busy=false, entrySig=null, pendingResult=null;
+    var connectBtn, walletStatus;
+
+    function $(id){ return document.getElementById(id); }
+    // ---- verbatim from Rush/Mr Bot ----
+    function getProvider(){ if(window.phantom&&window.phantom.solana&&window.phantom.solana.isPhantom) return window.phantom.solana; if(window.solana&&window.solana.isPhantom) return window.solana; return null; }
+    function shortAddr(a){ return a.slice(0,4)+'…'+a.slice(-4); }
+    function setStatus(html,cls){ walletStatus.classList.remove('hidden'); walletStatus.className='wallet-status'+(cls?' '+cls:''); walletStatus.innerHTML=html; }
+    function canPlay(){ return !!wallet.pubkey && wallet.oil>=CFG.ENTRY_FEE; }
+    function delay(ms){ return new Promise(function(res){ setTimeout(res,ms); }); }
+
+    // ---- balance (verbatim from Rush/Mr Bot) -------------------------------
+    async function fetchOilBalance(owner){
+      try{ var body=JSON.stringify({ jsonrpc:'2.0', id:'oilbal', method:'getTokenAccountsByOwner', params:[ owner, { mint:CFG.OIL_MINT }, { encoding:'jsonParsed' } ] });
+        var r=await fetch(CFG.RPC,{ method:'POST', headers:{'Content-Type':'application/json'}, body:body }); if(!r.ok) return 0;
+        var j=await r.json(); var accts=j&&j.result&&j.result.value; if(!accts||!accts.length) return 0;
+        var base=0; accts.forEach(function(acc){ try{ base+=Number(acc.account.data.parsed.info.tokenAmount.amount); }catch(e){} });
+        return base/Math.pow(10,CFG.DECIMALS);
+      }catch(e){ return 0; }
+    }
+    async function checkBalance(owner){
+      wallet.oil=await fetchOilBalance(owner);
+      var pfx=TEST_MODE?'🧪 TEST MODE — ':'';
+      if(wallet.oil>=CFG.ENTRY_FEE){ setStatus('Connected as <span class="addr">'+shortAddr(owner)+'</span><br/>'+pfx+'You hold <b>'+wallet.oil.toFixed(2)+'</b> $OIL — tap Play to enter (25 OIL).', 'ok'); }
+      else { setStatus('Connected as <span class="addr">'+shortAddr(owner)+'</span><br/>'+pfx+'This wallet holds <b>'+wallet.oil.toFixed(2)+'</b> $OIL — need at least '+CFG.ENTRY_FEE+' to play.', 'warn'); }
+      relabelStart();
+    }
+
+    // ---- payment (one signed SPL transfer + memo — verbatim from Rush/Mr Bot) ----
+    var PENDING_KEY='botf_pending_action';
+    function savePending(a){ try{ localStorage.setItem(PENDING_KEY, JSON.stringify(a)); }catch(e){} }
+    function loadPending(){ try{ var v=localStorage.getItem(PENDING_KEY); return v?JSON.parse(v):null; }catch(e){ return null; } }
+    function clearPending(){ try{ localStorage.removeItem(PENDING_KEY); }catch(e){} }
+    function PayError(msg){ this.userMessage=msg; }
+    function u64LE(amount){ var out=new Uint8Array(8); var big=BigInt(Math.round(amount)); for(var i=0;i<8;i++){ out[i]=Number(big&0xffn); big>>=8n; } return out; }
+    function buildTransferIx(src,dst,owner,amt){ var data=new Uint8Array(9); data[0]=3; data.set(u64LE(amt),1);
+      return new solanaWeb3.TransactionInstruction({ programId:new solanaWeb3.PublicKey(CFG.TOKEN_PROGRAM),
+        keys:[{pubkey:src,isSigner:false,isWritable:true},{pubkey:dst,isSigner:false,isWritable:true},{pubkey:owner,isSigner:true,isWritable:false}], data:data }); }
+    function buildMemoIx(owner,text){ return new solanaWeb3.TransactionInstruction({ programId:new solanaWeb3.PublicKey(CFG.MEMO_PROGRAM), keys:[{pubkey:owner,isSigner:true,isWritable:false}], data:new TextEncoder().encode(text) }); }
+    async function confirmSignature(connection,signature,timeoutMs){ var start=Date.now();
+      while(Date.now()-start<timeoutMs){ var res=await connection.getSignatureStatuses([signature]); var st=res&&res.value&&res.value[0];
+        if(st){ if(st.err) throw new PayError('The transaction failed on-chain — no charge was made. Please try again.'); if(st.confirmationStatus==='confirmed'||st.confirmationStatus==='finalized') return true; } await delay(1500); } return false; }
+
+    async function sendPayment(amountOil, memoText, action){
+      var provider=getProvider();
+      var useMobile=!provider && window.PhantomMobile && PhantomMobile.isMobile() && PhantomMobile.hasSession();
+      if(!provider && !useMobile) throw new PayError('Phantom isn’t reachable here — open this page in your browser, or tap Connect again on mobile.');
+      var ownerPk=new solanaWeb3.PublicKey(wallet.pubkey);
+      var connection=new solanaWeb3.Connection(CFG.RPC,'confirmed');
+      var tokAccts=await connection.getTokenAccountsByOwner(ownerPk,{ mint:new solanaWeb3.PublicKey(CFG.OIL_MINT) });
+      if(!tokAccts.value.length) throw new PayError('No $OIL account found in this wallet.');
+      var sourcePubkey=tokAccts.value[0].pubkey;
+      var balInfo=await connection.getTokenAccountBalance(sourcePubkey);
+      var needBase=Math.round(amountOil*Math.pow(10,CFG.DECIMALS));
+      if(Number(balInfo.value.amount)<needBase) throw new PayError('Not enough liquid $OIL — need '+amountOil+'.');
+      var destPubkey=new solanaWeb3.PublicKey(CFG.TREASURY_TOKEN_ACCOUNT);
+      var tx=new solanaWeb3.Transaction();
+      tx.add(buildTransferIx(sourcePubkey,destPubkey,ownerPk,needBase), buildMemoIx(ownerPk,memoText));
+      tx.feePayer=ownerPk; var latest=await connection.getLatestBlockhash(); tx.recentBlockhash=latest.blockhash;
+      if(useMobile){
+        var pend={ action:action, owner:wallet.pubkey, marker:'botf_sign' };
+        if(action==='score' && pendingResult){ pend.entrySig=entrySig; pend.score=pendingResult.score; pend.cave=pendingResult.cave; pend.beads=pendingResult.beads; pend.timeMs=pendingResult.timeMs; }
+        savePending(pend); setStatus('Opening Phantom to approve…');
+        var unsigned=tx.serialize({ requireAllSignatures:false, verifySignatures:false });
+        PhantomMobile.signTransaction(unsigned, window.location.origin+window.location.pathname, 'botf_sign'); return null;
+      }
+      var signed=await provider.signTransaction(tx); setStatus('Sending payment…');
+      var rawSig=await connection.sendRawTransaction(signed.serialize(),{ skipPreflight:false }); setStatus('Payment sent — waiting for confirmation…');
+      var ok=await confirmSignature(connection,rawSig,30000); if(!ok) throw new PayError('Confirmation is taking longer than expected. Signature: '+rawSig+'. Do not pay again — check it first.');
+      return rawSig; // base58 on-chain signature
+    }
+
+    // ---- score memo (BOTF — no seed, no move-log, no replay; records NOT verified) ----
+    function buildScoreMemo(res){ return MEMO_TAG+'|score|sig='+String(entrySig).slice(0,32)+'|score='+res.score+'|cave='+res.cave+'|beads='+res.beads+'|time='+res.timeMs; }
+
+    // ---- flow glue (BotFord: single-run cave digger) -----------------------
+    function relabelStart(){
+      var b=$('paidPlayBtn'); if(!b) return;
+      b.textContent = canPlay() ? 'Play (25 OIL)' : (wallet.pubkey ? 'Need 25 OIL to play' : 'Connect wallet first');
+    }
+    function relabelStartBusy(t){ var b=$('paidPlayBtn'); if(b) b.textContent=t; }
+
+    function onEntryConfirmed(sig){ entrySig=sig; busy=false; lockModeToggle(true);
+      setStatus('Entry paid — good luck! Post your score after the run.', 'ok');
+      window.BotFordEngine.start(); }
+
+    // Called by the engine at run end. Returns true if this was a paid run (engine then skips its free overlay).
+    function onRunEnd(res){
+      if(mode!=='paid' || !entrySig) return false;
+      pendingResult={ score:res.score, cave:res.cave, beads:res.beads, timeMs:res.timeMs, won:res.won };
+      showRunOver(pendingResult); return true;
+    }
+    function fmtTime(ms){ var s=Math.round(ms/1000); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); }
+
+    function showRunOver(res){
+      setStatus('Run over — post your score below to record it (1 OIL).', 'ok'); relabelStart();
+      var ov=$('paidOverlay'); ov.classList.add('show');
+      ov.innerHTML='<div class="card win"><h2>'+(res.won?'VAULT CLEAR':'SHIFT OVER')+'</h2><p>Cave <b>'+res.cave+'</b> · Beads <b>'+res.beads+'</b> · Score <b>'+res.score+'</b> · Time <b>'+fmtTime(res.timeMs)+'</b><br/>Post it to the leaderboard (1 OIL) — a fun ranking, not verified.</p>'+
+        '<button class="btn" id="postBtn">Post score (1 OIL)</button></div>';
+      $('postBtn').addEventListener('click', onPost, { once:false });
+    }
+    async function onPost(){
+      if(busy || !pendingResult) return;
+      busy=true; var pb=$('postBtn'); if(pb){ pb.disabled=true; pb.textContent='Posting…'; }
+      var memo=buildScoreMemo(pendingResult);
+      try{ var sig=await sendPayment(CFG.POST_FEE, memo, 'score'); if(sig===null) return; showPosted(pendingResult); }
+      catch(e){ setStatus('Connected as <span class="addr">'+shortAddr(wallet.pubkey||'')+'</span><br/>'+((e instanceof PayError)?e.userMessage:'Your score post didn’t confirm. Nothing recorded yet — tap to retry.'), 'warn');
+        if(pb){ pb.disabled=false; pb.textContent='Retry post'; } busy=false; }
+    }
+    function showPosted(res){ pendingResult=null; entrySig=null; busy=false; lockModeToggle(false);
+      $('posted-text').innerHTML='Cave <b>'+res.cave+'</b> · Beads <b>'+res.beads+'</b> · Score <b>'+res.score+'</b> · Time <b>'+fmtTime(res.timeMs)+'</b>. It’ll appear on the leaderboard once recorded on-chain — a fun ranking, not verified.';
+      $('paidOverlay').classList.remove('show');
+      $('postedSheet').classList.add('show');
+    }
+
+    // Paid start card (idle state before entry) — mirrors Mr Bot's resetToPlay.
+    function showPaidStart(){
+      entrySig=null; pendingResult=null; busy=false; lockModeToggle(false);
+      var ov=$('paidOverlay'); ov.classList.add('show');
+      ov.innerHTML='<div class="card"><h2>BOTFORD — PAID</h2><p>25 OIL entry · one run (3 lives) · fun leaderboard, not verified. Dig the caves, bank the Beads, reach the bay — holders ×1.5.</p>'+
+        '<button class="btn" id="paidPlayBtn">Play (25 OIL)</button></div>';
+      $('paidPlayBtn').addEventListener('click', function(){ handleStart(); });
+      relabelStart();
+      if(wallet.pubkey) checkBalance(wallet.pubkey);
+    }
+
+    // ---- connect (desktop + mobile — verbatim from Rush/Mr Bot) ------------
+    async function onConnect(){
+      var provider=getProvider();
+      if(!provider){
+        if(window.PhantomMobile && PhantomMobile.isMobile()){
+          var inBrowse=new URLSearchParams(window.location.search).get('src')==='browse';
+          if(!inBrowse){ connectBtn.disabled=true; connectBtn.textContent='Opening in Phantom…'; setStatus('Opening this game inside Phantom’s browser.');
+            var target=window.location.origin+window.location.pathname+'?src=browse';
+            window.location.href='https://phantom.app/ul/browse/'+encodeURIComponent(target)+'?ref='+encodeURIComponent(window.location.origin); return; }
+          connectBtn.disabled=true; connectBtn.textContent='Opening Phantom…'; setStatus('Opening Phantom — approve, then you’ll come back here.');
+          PhantomMobile.connect(window.location.origin+window.location.pathname); return;
+        }
+        setStatus('Phantom isn’t reachable here. Open this page in a browser with the <a href="https://phantom.app" target="_blank" rel="noopener">Phantom</a> extension.', 'warn'); return;
+      }
+      connectBtn.disabled=true; connectBtn.textContent='Connecting…';
+      try{ var resp=await provider.connect(); wallet.pubkey=resp.publicKey.toString(); connectBtn.textContent='Connected';
+        setStatus('Connected as <span class="addr">'+shortAddr(wallet.pubkey)+'</span><br/>Checking your $OIL balance…'); checkBalance(wallet.pubkey);
+      }catch(e){ connectBtn.disabled=false; connectBtn.textContent='Connect'; setStatus('Connection cancelled. Tap Connect to try again.', 'warn'); }
+    }
+
+    // ---- play (25 OIL entry) -----------------------------------------------
+    async function onPlay(){
+      if(busy || entrySig) return;
+      if(!canPlay()){ setStatus('Connect a wallet holding at least '+CFG.ENTRY_FEE+' $OIL to play.', 'warn'); return; }
+      busy=true; relabelStartBusy('Sending entry…');
+      try{ var sig=await sendPayment(CFG.ENTRY_FEE, MEMO_TAG+'|entry', 'entry'); if(sig===null) return; onEntryConfirmed(sig); }
+      catch(e){ setStatus('Connected as <span class="addr">'+shortAddr(wallet.pubkey||'')+'</span><br/>'+((e instanceof PayError)?e.userMessage:'Something went wrong sending the entry. No confirmed charge means nothing was taken.'), 'warn');
+        busy=false; relabelStart(); }
+    }
+
+    // handleStart is the entry gate reused by the Paid start card's Play button.
+    function handleStart(){
+      if(mode!=='paid') return false;      // Free: engine runs as normal
+      if(busy || entrySig) return true;    // in-flight or a paid run already armed: block
+      if(!wallet.pubkey){ setStatus('Connect a wallet with at least '+CFG.ENTRY_FEE+' $OIL, then tap Play.', 'warn'); return true; }
+      onPlay(); return true;
+    }
+
+    function onAgain(){ $('postedSheet').classList.remove('show'); window.BotFordEngine.idle(); showPaidStart(); }
+
+    // ---- mobile redirect resume (verbatim from Rush/Mr Bot; carries the score memo fields) --
+    async function resume(){
+      var actionParam=new URLSearchParams(window.location.search).get('phantom_action');
+      if(!actionParam){
+        if(!wallet.pubkey && window.PhantomMobile && PhantomMobile.hasSession()){ wallet.pubkey=PhantomMobile.getSessionPublicKey();
+          connectBtn.textContent='Connected'; connectBtn.disabled=true; setStatus('Connected as <span class="addr">'+shortAddr(wallet.pubkey)+'</span><br/>Checking your $OIL balance…'); checkBalance(wallet.pubkey); }
+        return;
+      }
+      connectBtn.disabled=true; connectBtn.textContent='Finishing…'; setStatus('Almost there — finishing up with Phantom…');
+      var pending=loadPending(); var marker=pending?pending.marker:'botf_sign';
+      var result=window.PhantomMobile?PhantomMobile.consumePendingRedirect(marker):null;
+      if(result&&result.type==='connect'){ wallet.pubkey=result.publicKey; connectBtn.textContent='Connected';
+        setStatus('Connected as <span class="addr">'+shortAddr(wallet.pubkey)+'</span><br/>Checking your $OIL balance…'); checkBalance(wallet.pubkey); return; }
+      if(result&&result.type==='signTransaction'&&pending){ connectBtn.textContent='Connected'; connectBtn.disabled=true; if(pending.owner) wallet.pubkey=pending.owner; clearPending();
+        try{ var connection=new solanaWeb3.Connection(CFG.RPC,'confirmed'); var rawSig=await connection.sendRawTransaction(result.txBytes,{ skipPreflight:false });
+          setStatus('Payment sent — waiting for confirmation…'); var ok=await confirmSignature(connection,rawSig,30000);
+          if(!ok) throw new PayError('Confirmation slow. Signature: '+rawSig+'. Do not pay again — check it first.');
+          if(pending.action==='entry'){ onEntryConfirmed(rawSig); }
+          else if(pending.action==='score'){ pendingResult={ score:pending.score, cave:pending.cave, beads:pending.beads, timeMs:pending.timeMs }; showPosted(pendingResult); }
+          if(wallet.pubkey) checkBalance(wallet.pubkey);
+        }catch(e){ setStatus('Connected as <span class="addr">'+shortAddr(wallet.pubkey||'')+'</span><br/>'+((e instanceof PayError)?e.userMessage:'Something went wrong after returning from Phantom. Check your wallet activity before retrying.'), 'warn'); }
+        return;
+      }
+      connectBtn.disabled=false; connectBtn.textContent='Connect';
+      setStatus((result&&result.type==='error')?result.message:'The connection didn’t complete — tap Connect to try again.', 'warn');
+    }
+
+    function init(){
+      if(inited) return; inited=true;
+      connectBtn=$('connectBtn'); walletStatus=$('walletStatus');
+      if(TEST_MODE){ $('testBanner').classList.remove('hidden'); }
+      connectBtn.addEventListener('click', onConnect);
+      $('againBtn').addEventListener('click', onAgain);
+    }
+
+    return { init:init, resume:resume, onRunEnd:onRunEnd, handleStart:handleStart,
+             showPaidStart:showPaidStart, hasSession:function(){ return window.PhantomMobile && PhantomMobile.hasSession(); } };
+  })();
+
+  window.BotFordPaid = Paid;
+
+  // ===== Mode switching (kid-safety: Paid is a deliberate opt-in) ============
+  var facts=$('facts');
+  var confirmSheet=$('confirmSheet');
+  var FREE_FACTS='Free · wallet-free · pays nothing';
+  var PAID_FACTS='Paid · 25 OIL entry · one run · fun leaderboard (not verified) · holders ×1.5';
+
+  function setMode(m){
+    mode=m;
+    var f=$('modeFree'), p=$('modePaid');
+    if(m==='free'){
+      document.body.classList.remove('mode-paid');
+      f.classList.add('active'); p.classList.remove('active');
+      if(facts) facts.textContent=FREE_FACTS;
+    } else {
+      document.body.classList.add('mode-paid');
+      p.classList.add('active'); f.classList.remove('active');
+      if(facts) facts.textContent=PAID_FACTS;
+    }
+  }
+
+  $('modeFree').addEventListener('click', function(){ if(mode==='free') return; setMode('free'); window.BotFordEngine.resumeFree(); });
+  $('modePaid').addEventListener('click', function(){ if(mode==='paid') return; confirmSheet.classList.add('show'); });
+  $('confirmBack').addEventListener('click', function(){ confirmSheet.classList.remove('show'); });
+  $('confirmEnter').addEventListener('click', function(){ confirmSheet.classList.remove('show'); setMode('paid'); Paid.init(); window.BotFordEngine.idle(); Paid.showPaidStart(); if(Paid.hasSession && Paid.hasSession()) Paid.resume(); });
+
+  // ===== On load: Free by default. The wallet layer is only touched when returning
+  // ===== from a Phantom redirect or already inside Phantom's browser (both of which
+  // ===== can ONLY occur after the user opted into Paid). =====================
+  (function boot(){
+    var params=new URLSearchParams(window.location.search);
+    if(params.get('phantom_action') || params.get('src')==='browse'){ setMode('paid'); Paid.init(); window.BotFordEngine.idle(); Paid.showPaidStart(); Paid.resume(); }
+    else { setMode('free'); }
+  })();
+})();
+</script>
+</body>
+</html>
