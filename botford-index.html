@@ -387,14 +387,19 @@ function caveC(){ const r=baseRows('=');           // MAZE — brick walls, scra
   setc(r,37,18,'X');
   return { rows:frame(r), needed:12, time:180, val:10, extra:15 };
 }
-function caveD(){ const r=baseRows('.');           // TICKFLIES — quota > placed Beads, must drop drums on tickflies
+function caveD(){ const r=baseRows('.');           // TICKFLIES — quota > placed Beads; drop a drum down a 1-wide shaft
   setc(r,2,2,'@');
-  scatter(r,[[5,18],[9,18],[13,18],[26,18],[30,18],[34,18]],'B');   // only 6 placed; needed 10
-  [8,18,28].forEach(function(cx){
-    rect(r,cx,10,cx+4,13,'=');                     // brick pit
-    rect(r,cx+1,10,cx+3,12,' ');                   // hollow, open top
-    setc(r,cx+2,12,'T');                           // tickfly at the pit floor
-    setc(r,cx+2,8,'o');                            // drum on a scrap shelf above (support = scrap at cy-1)
+  scatter(r,[[4,18],[8,18],[12,18],[27,18],[31,18],[35,18]],'B');   // only 6 placed; needed 10 -> must blast a tickfly
+  [10,20,30].forEach(function(cx){
+    // sealed 1-wide pocket: the tickfly can only bob up/down in column cx — it can't
+    // dodge a dropped drum and can't escape to reach Bot 106.
+    setc(r,cx-1,11,'='); setc(r,cx-1,12,'='); setc(r,cx-1,13,'=');   // left wall
+    setc(r,cx+1,11,'='); setc(r,cx+1,12,'='); setc(r,cx+1,13,'=');   // right wall
+    setc(r,cx,13,'=');                             // floor
+    setc(r,cx,12,'T');                             // tickfly
+    setc(r,cx,11,' ');                             // void above it
+    setc(r,cx,10,'.');                             // scrap plug — dig it from the side (DIG + toward it)
+    setc(r,cx,9,'o');                              // drum resting on the plug
   });
   setc(r,36,20,'X');
   return { rows:frame(r), needed:10, time:150, val:20, extra:30 };
