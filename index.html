@@ -180,6 +180,7 @@
     <header class="topbar">
       <span class="pill">BOT GAMES</span>
       <h1 class="title">BOTFORD</h1>
+      <button class="iconbtn" id="restartBtn" aria-label="Restart this cave" title="Restart cave (R)">⟲</button>
       <button class="iconbtn" id="infoBtn" aria-label="How to play">ⓘ</button>
     </header>
 
@@ -744,6 +745,12 @@ if(!HEADLESS){
   infoBtn.onclick=openRules;
   document.getElementById('rulesClose').onclick=closeRules;
   rulesO.addEventListener('click',function(e){ if(e.target===rulesO) closeRules(); });
+  // Restart the CURRENT cave (for when you get stuck). Keeps lives + score; resets the cave grid + timer.
+  function restartCave(){
+    loadCave(s, s.cave); active=true; camInit=false; prevPhase='play';
+    rulesO.classList.remove('show'); overO.classList.remove('show'); caveO.classList.remove('show'); paidO.classList.remove('show');
+  }
+  document.getElementById('restartBtn').onclick=function(){ restartCave(); document.getElementById('game').focus&&document.getElementById('game').focus(); };
 
   function pad(n,w){ return String(n).padStart(w,'0'); }
   function mmss(ms){ const t=Math.floor(ms/1000); return Math.floor(t/60)+':'+pad(t%60,2); }
@@ -915,6 +922,7 @@ if(!HEADLESS){
                w:'u', s:'d', a:'l', d:'r', W:'u', S:'d', A:'l', D:'r' };
   addEventListener('keydown',function(e){
     if(e.key==='Escape'){ closeRules(); return; }
+    if(e.key==='r'||e.key==='R'){ restartCave(); e.preventDefault(); return; }
     if(!active) return;
     if(e.key===' '||e.key==='Spacebar'){ setFire(true); e.preventDefault(); return; }
     const dir=KEYS[e.key]; if(dir){ setHeld(dir,true); e.preventDefault(); }
