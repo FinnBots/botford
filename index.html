@@ -336,6 +336,7 @@ const LIVES = { start:3, continues:3, extraEvery:500 };
 const GRATE = { ticks:200 };       // magic-wall window = 20 s @ 10 Hz
 const EXPL  = { ticks:3 };         // explosion animation length
 const SPILL = { max:200 };         // >= this many spill cells -> drums
+const ENEMY = { step:2 };          // Sparks/Tickflies move once every N ticks (2 = half speed, friendlier)
 
 /* ---- tile codes + glyph map --------------------------------------------- */
 const T = { STEEL:0, BRICK:1, SCRAP:2, VOID:3, DRUM:4, BEAD:5, BOT:6,
@@ -593,10 +594,12 @@ function enemyAdjToBot(s){
 function enemyScan(s){
   const sc=s._escan; sc.fill(0);
   if(enemyAdjToBot(s)){ botDie(s); return; }         // spec: adjacency kills "after moving OR before"
-  for(let y=0;y<H;y++) for(let x=0;x<W;x++){
-    const i=idx(x,y); if(sc[i]) continue;
-    const t=s.g[i]; if(t!==T.SPARK && t!==T.TICK) continue;
-    moveEnemy(s,x,y,i,t,sc);
+  if(s.tickCount % ENEMY.step === 0){                 // enemies step on a slower cadence (friendlier to read/dodge)
+    for(let y=0;y<H;y++) for(let x=0;x<W;x++){
+      const i=idx(x,y); if(sc[i]) continue;
+      const t=s.g[i]; if(t!==T.SPARK && t!==T.TICK) continue;
+      moveEnemy(s,x,y,i,t,sc);
+    }
   }
   // contacts: adjacent to Bot kills Bot; adjacent to Spill kills the enemy
   const kill=[];
