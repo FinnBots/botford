@@ -688,6 +688,7 @@ if(!HEADLESS){
 (function(){
   const cv=document.getElementById('game'), ctx=cv.getContext('2d');
   ctx.imageSmoothingEnabled=false;
+  const heroImg=new Image(); let heroReady=false; heroImg.onload=function(){heroReady=true;}; heroImg.src='assets/hero/bot-106.png';
   const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // Scrolling camera: show a zoomed VIEW window and follow Bot 106 (like the
@@ -838,6 +839,7 @@ if(!HEADLESS){
     ctx.fillStyle=eye; ctx.fillRect(px+5,py+6,2,2); ctx.fillRect(px+9,py+6,2,2);
     ctx.fillStyle='#1a0000'; ctx.fillRect(px+5,py+10,6,1); }
   function drawBot(px,py){
+    if(heroReady){ const z=TS+4; ctx.drawImage(heroImg, px+((TS-z)>>1), py+((TS-z)>>1), z, z); return; }
     ctx.fillStyle=A; ctx.fillRect(px+2,py+1,TS-4,TS-2);
     ctx.fillStyle='#22314f'; ctx.fillRect(px+2,py+1,TS-4,2);
     // screen-face 106 with a two-frame blink
