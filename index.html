@@ -835,9 +835,14 @@ if(!HEADLESS){
       case T.EXPL: ctx.fillStyle=(anim%2)?'#fff2c0':D; ctx.fillRect(px,py,TS,TS); break;
     }
   }
-  function face(px,py,body,eye){ ctx.fillStyle=body; ctx.fillRect(px+2,py+2,TS-4,TS-4);
-    ctx.fillStyle=eye; ctx.fillRect(px+5,py+6,2,2); ctx.fillRect(px+9,py+6,2,2);
-    ctx.fillStyle='#1a0000'; ctx.fillRect(px+5,py+10,6,1); }
+  function face(px,py,body,eye){
+    ctx.fillStyle='#120a08'; ctx.fillRect(px+1,py+1,TS-2,TS-2);              // outline
+    ctx.fillStyle=body; ctx.fillRect(px+2,py+2,TS-4,TS-4);                    // body
+    ctx.fillStyle='rgba(255,255,255,.28)'; ctx.fillRect(px+2,py+2,TS-4,2);    // top highlight
+    ctx.fillStyle='rgba(0,0,0,.30)'; ctx.fillRect(px+2,py+TS-4,TS-4,2);       // bottom shadow
+    ctx.fillStyle='#0b0f18'; ctx.fillRect(px+4,py+5,TS-8,6);                  // screen
+    ctx.fillStyle=eye; ctx.fillRect(px+5,py+6,2,2); ctx.fillRect(px+9,py+6,2,2); // eyes
+    ctx.fillStyle=eye; ctx.fillRect(px+6,py+9,4,1); }                         // mouth glow
   function drawBot(px,py){
     if(heroReady){ const z=TS+4; ctx.drawImage(heroImg, px+((TS-z)>>1), py+((TS-z)>>1), z, z); return; }
     ctx.fillStyle=A; ctx.fillRect(px+2,py+1,TS-4,TS-2);
