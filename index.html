@@ -885,6 +885,10 @@ if(!HEADLESS){
       const px=x*TS-ox, py=y*TS-oy;
       if(t===T.BOT) drawBot(px,py); else drawTile(t,px,py,x,y);
     }
+    // cave vignette — darken the edges for depth (screen-space overlay)
+    const vg=ctx.createRadialGradient(CW/2,CH/2,CH*0.32, CW/2,CH/2,CH*0.72);
+    vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(8,4,2,0.5)');
+    ctx.fillStyle=vg; ctx.fillRect(0,0,CW,CH);
     if(s.flash>0 && !reduce){ ctx.fillStyle='rgba(255,255,255,'+(s.flash)+')'; ctx.fillRect(0,0,CW,CH); }
     if(s.timeLeft<=10 && s.phase==='play' && !reduce){ ctx.strokeStyle='rgba(192,57,43,'+(0.3+0.3*Math.sin(anim*0.5))+')'; ctx.lineWidth=4; ctx.strokeRect(2,2,CW-4,CH-4); }
     if(bannerT>0){ drawBanner(CW,CH); if(active && !rulesO.classList.contains('show')) bannerT--; }
