@@ -315,7 +315,7 @@
    Tickflies (counter-clockwise) hug walls and kill on touch; a falling drum on a
    Tickfly bursts into Beads, on a Spark into void. Spill (amoeba) grows — box it
    into Beads or it turns to drums. The Grate (magic wall) trades falling drums
-   for Beads for 20s. Eight hand-built caves A–H, 3 lives, cave restart on death.
+   for Beads for 20s. Twenty hand-built caves A–T, 3 lives, cave restart on death.
    The engine references NO wallet/RPC/memo/money symbol. Contract for the Paid
    layer: window.BotFordEngine {start,idle,resumeFree,next,continueRun,state};
    hands the run result to the Paid layer via onRunEnd. Every number lives in a
@@ -448,7 +448,119 @@ function caveH(){ const r=baseRows('.');           // GRATE — convert a column
   setc(r,36,20,'X');
   return { rows:frame(r), needed:12, time:180, val:20, extra:40 };
 }
-const CAVES = [caveA(),caveB(),caveC(),caveD(),caveE(),caveF(),caveG(),caveH()];
+/* ---- caves I–T (extension pack, 2026-09-22): quota is always beatable by pure
+   dig+collect (audited by botford-audit.js); enemies/drums/spill/grate/blast add
+   hazard + bonus. Difficulty escalates via quota, enemy count, and time. -------- */
+function caveI(){ const r=baseRows('.');            // CAVERNS — big dig field, mind the ceiling drums
+  setc(r,2,2,'@');
+  rect(r,6,6,14,9,' '); rect(r,24,12,34,16,' '); rect(r,18,4,22,6,' ');
+  scatter(r,[[5,4],[9,4],[13,4],[20,3],[27,4],[33,4],[4,12],[8,14],[12,16],[16,18],[22,18],[28,18],[33,18],[36,10],[3,18],[30,10]],'B');
+  scatter(r,[[7,2],[11,2],[17,2],[25,2],[31,2],[35,2],[10,10],[28,8]],'o');
+  setc(r,37,20,'X');
+  return { rows:frame(r), needed:14, time:160, val:10, extra:15 };
+}
+function caveJ(){ const r=baseRows('.');            // PILLARS — dig the aisles between brick columns
+  setc(r,2,2,'@');
+  [8,14,20,26,32].forEach(function(x){ vline(r,x,4,20,'='); });
+  scatter(r,[[4,6],[4,12],[4,18],[11,6],[11,12],[11,18],[17,6],[17,12],[17,18],[23,6],[23,12],[23,18],[29,6],[29,12],[29,18],[36,10]],'B');
+  scatter(r,[[8,3],[14,3],[20,3],[26,3],[32,3]],'o');
+  setc(r,37,20,'X');
+  return { rows:frame(r), needed:14, time:170, val:10, extra:15 };
+}
+function caveK(){ const r=baseRows('.');            // SPARK ALLEY — grab beads while sparks patrol the void lanes
+  setc(r,2,2,'@');
+  [5,10,15].forEach(function(y){ hline(r,3,36,y,' '); });
+  setc(r,6,5,'S'); setc(r,30,10,'S'); setc(r,14,15,'S');
+  scatter(r,[[3,3],[10,3],[18,3],[26,3],[34,3],[3,8],[12,8],[22,8],[34,8],[3,13],[16,13],[28,13],[36,13],[8,18],[20,18],[32,18]],'B');
+  setc(r,37,20,'X');
+  return { rows:frame(r), needed:12, time:160, val:10, extra:15 };
+}
+function caveL(){ const r=baseRows('.');            // TICK VAULT — quota is on the floor; blast the pockets for bonus
+  setc(r,2,2,'@');
+  scatter(r,[[4,18],[8,18],[12,18],[16,18],[20,18],[24,18],[32,18],[36,18],[5,10],[15,10],[25,10],[35,10],[10,5],[30,5],[6,5]],'B');
+  [12,20,28].forEach(function(cx){
+    setc(r,cx-1,13,'='); setc(r,cx-1,14,'='); setc(r,cx-1,15,'=');
+    setc(r,cx+1,13,'='); setc(r,cx+1,14,'='); setc(r,cx+1,15,'=');
+    setc(r,cx,15,'='); setc(r,cx,14,'T'); setc(r,cx,13,' '); setc(r,cx,12,'.'); setc(r,cx,11,'o');
+  });
+  setc(r,37,20,'X');
+  return { rows:frame(r), needed:14, time:170, val:10, extra:20 };
+}
+function caveM(){ const r=baseRows('.');            // TWIN GRATE — magic walls turn dropped drums into Beads (bonus)
+  setc(r,2,2,'@');
+  hline(r,6,16,10,'E'); hline(r,23,33,10,'E');
+  [7,10,13,16].forEach(function(x){ setc(r,x,7,'o'); setc(r,x,8,'o'); });
+  [24,27,30,33].forEach(function(x){ setc(r,x,7,'o'); setc(r,x,8,'o'); });
+  rect(r,6,11,16,15,' '); rect(r,23,11,33,15,' ');
+  hline(r,6,16,16,'='); hline(r,23,33,16,'=');
+  scatter(r,[[3,5],[3,10],[3,15],[3,19],[19,5],[20,12],[19,18],[36,5],[36,12],[36,19],[10,19],[28,19],[15,5],[25,5],[6,19],[31,19]],'B');
+  setc(r,37,20,'X');
+  return { rows:frame(r), needed:14, time:180, val:10, extra:20 };
+}
+function caveN(){ const r=baseRows('.');            // AMOEBA PEN — the spill is boxed; race the clock to fill quota
+  setc(r,2,2,'@');
+  rect(r,15,7,25,15,'='); rect(r,16,8,24,14,' '); setc(r,20,11,'~');
+  scatter(r,[[4,4],[8,4],[12,4],[28,4],[32,4],[36,4],[4,12],[8,12],[4,18],[9,18],[14,18],[26,18],[31,18],[36,12],[36,18],[20,4],[20,18]],'B');
+  setc(r,37,20,'X');
+  return { rows:frame(r), needed:16, time:190, val:10, extra:15, spillRate:16 };
+}
+function caveO(){ const r=baseRows('.');            // ROCKFALL — a ceiling of drums; dig sideways, never straight up
+  setc(r,2,2,'@');
+  for(let x=4;x<=36;x+=2){ setc(r,x,3,'o'); }
+  scatter(r,[[3,8],[7,8],[11,8],[15,8],[19,8],[23,8],[27,8],[31,8],[35,8],[5,14],[13,14],[21,14],[29,14],[9,18],[25,18],[33,18]],'B');
+  scatter(r,[[10,11],[20,11],[30,11]],'o');
+  setc(r,37,20,'X');
+  return { rows:frame(r), needed:15, time:170, val:10, extra:15 };
+}
+function caveP(){ const r=baseRows('.');            // GAUNTLET — staggered brick + patrolling sparks
+  setc(r,2,2,'@');
+  vline(r,10,1,14,'='); vline(r,20,7,20,'='); vline(r,30,1,14,'=');
+  hline(r,12,18,7,' '); setc(r,15,7,'S');
+  hline(r,22,28,14,' '); setc(r,25,14,'S');
+  scatter(r,[[5,5],[5,12],[5,18],[15,4],[15,18],[25,4],[25,10],[35,5],[35,12],[35,18],[12,10],[22,16],[28,18],[8,18],[18,10],[33,3],[30,18]],'B');
+  scatter(r,[[6,2],[16,2],[26,2],[36,2]],'o');
+  setc(r,37,20,'X');
+  return { rows:frame(r), needed:16, time:180, val:10, extra:15 };
+}
+function caveQ(){ const r=baseRows('.');            // TICK & SPARK — both foes; two void lanes
+  setc(r,2,2,'@');
+  hline(r,3,36,6,' '); hline(r,3,36,16,' ');
+  setc(r,8,6,'S'); setc(r,28,6,'S'); setc(r,12,16,'T'); setc(r,32,16,'T');
+  scatter(r,[[3,3],[10,3],[18,3],[26,3],[34,3],[3,10],[12,10],[20,10],[28,10],[36,10],[3,13],[16,13],[28,13],[6,19],[16,19],[26,19],[36,19]],'B');
+  scatter(r,[[20,2],[20,4]],'o');
+  setc(r,37,20,'X');
+  return { rows:frame(r), needed:16, time:180, val:10, extra:15 };
+}
+function caveR(){ const r=baseRows('.');            // GREAT VAULT — quota is outside; the brick vault is a bonus blast
+  setc(r,2,2,'@');
+  rect(r,22,9,34,17,'='); rect(r,23,10,33,16,'B');
+  setc(r,21,10,'S'); setc(r,21,9,' '); setc(r,21,7,'o');
+  scatter(r,[[4,4],[8,4],[12,4],[16,4],[4,10],[8,10],[12,10],[16,10],[4,16],[8,16],[12,16],[16,16],[4,19],[10,19],[16,19],[6,7],[20,19]],'B');
+  setc(r,37,20,'X');
+  return { rows:frame(r), needed:16, time:180, val:10, extra:15 };
+}
+function caveS(){ const r=baseRows('.');            // WORKS — grate + boxed spill flavour, quota on the floor
+  setc(r,2,2,'@');
+  hline(r,14,25,9,'E'); [15,18,21,24].forEach(function(x){ setc(r,x,6,'o'); setc(r,x,7,'o'); }); rect(r,14,10,25,14,' '); hline(r,14,25,15,'=');
+  rect(r,4,14,9,19,'='); rect(r,5,15,8,18,' '); setc(r,6,16,'~');
+  scatter(r,[[3,4],[8,4],[13,4],[20,3],[28,4],[34,4],[3,10],[11,12],[30,10],[36,7],[36,13],[36,19],[12,19],[20,19],[28,19],[33,17],[18,17]],'B');
+  setc(r,37,20,'X');
+  return { rows:frame(r), needed:16, time:190, val:10, extra:20, spillRate:16 };
+}
+function caveT(){ const r=baseRows('.');            // THE FINALE — sparks, tickflies, a grate, and a big quota
+  setc(r,2,2,'@');
+  hline(r,3,36,5,' '); hline(r,3,36,17,' ');
+  setc(r,7,5,'S'); setc(r,20,5,'S'); setc(r,33,5,'S');
+  setc(r,10,17,'T'); setc(r,20,17,'T'); setc(r,30,17,'T');
+  hline(r,14,25,11,'E'); [15,18,21,24].forEach(function(x){ setc(r,x,8,'o'); }); rect(r,14,12,25,14,' '); hline(r,14,25,15,'=');
+  scatter(r,[[3,3],[12,3],[24,3],[34,3],[3,8],[9,8],[28,8],[35,8],[3,11],[9,11],[30,11],[35,11],[3,14],[9,14],[30,14],[35,14],[6,19],[14,19],[20,19],[26,19],[34,19]],'B');
+  setc(r,3,20,'o');
+  setc(r,37,20,'X');
+  return { rows:frame(r), needed:20, time:220, val:10, extra:25 };
+}
+const CAVES = [caveA(),caveB(),caveC(),caveD(),caveE(),caveF(),caveG(),caveH(),
+               caveI(),caveJ(),caveK(),caveL(),caveM(),caveN(),caveO(),caveP(),
+               caveQ(),caveR(),caveS(),caveT()];
 
 /* ---- run + cave state --------------------------------------------------- */
 function loadCave(s, ci){
@@ -688,7 +800,6 @@ if(!HEADLESS){
 (function(){
   const cv=document.getElementById('game'), ctx=cv.getContext('2d');
   ctx.imageSmoothingEnabled=false;
-  const heroImg=new Image(); let heroReady=false; heroImg.onload=function(){heroReady=true;}; heroImg.src='assets/hero/bot-106.png';
   const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // Scrolling camera: show a zoomed VIEW window and follow Bot 106 (like the
@@ -708,7 +819,7 @@ if(!HEADLESS){
   let anim=0;                      // frame counter for blink + pulses
   let camX=0, camY=0, camInit=false;   // smoothed scrolling camera (tile units)
   let bannerT=0, bannerCave=-1;        // start-of-cave objective banner
-  const CAVE_LETTERS=['A','B','C','D','E','F','G','H'];
+  const CAVE_LETTERS=['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T'];
 
   /* ---- audio -------------------------------------------------------------*/
   let ac=null;
@@ -835,16 +946,10 @@ if(!HEADLESS){
       case T.EXPL: ctx.fillStyle=(anim%2)?'#fff2c0':D; ctx.fillRect(px,py,TS,TS); break;
     }
   }
-  function face(px,py,body,eye){
-    ctx.fillStyle='#120a08'; ctx.fillRect(px+1,py+1,TS-2,TS-2);              // outline
-    ctx.fillStyle=body; ctx.fillRect(px+2,py+2,TS-4,TS-4);                    // body
-    ctx.fillStyle='rgba(255,255,255,.28)'; ctx.fillRect(px+2,py+2,TS-4,2);    // top highlight
-    ctx.fillStyle='rgba(0,0,0,.30)'; ctx.fillRect(px+2,py+TS-4,TS-4,2);       // bottom shadow
-    ctx.fillStyle='#0b0f18'; ctx.fillRect(px+4,py+5,TS-8,6);                  // screen
-    ctx.fillStyle=eye; ctx.fillRect(px+5,py+6,2,2); ctx.fillRect(px+9,py+6,2,2); // eyes
-    ctx.fillStyle=eye; ctx.fillRect(px+6,py+9,4,1); }                         // mouth glow
+  function face(px,py,body,eye){ ctx.fillStyle=body; ctx.fillRect(px+2,py+2,TS-4,TS-4);
+    ctx.fillStyle=eye; ctx.fillRect(px+5,py+6,2,2); ctx.fillRect(px+9,py+6,2,2);
+    ctx.fillStyle='#1a0000'; ctx.fillRect(px+5,py+10,6,1); }
   function drawBot(px,py){
-    if(heroReady){ const z=TS+4; ctx.drawImage(heroImg, px+((TS-z)>>1), py+((TS-z)>>1), z, z); return; }
     ctx.fillStyle=A; ctx.fillRect(px+2,py+1,TS-4,TS-2);
     ctx.fillStyle='#22314f'; ctx.fillRect(px+2,py+1,TS-4,2);
     // screen-face 106 with a two-frame blink
@@ -885,10 +990,6 @@ if(!HEADLESS){
       const px=x*TS-ox, py=y*TS-oy;
       if(t===T.BOT) drawBot(px,py); else drawTile(t,px,py,x,y);
     }
-    // cave vignette — darken the edges for depth (screen-space overlay)
-    const vg=ctx.createRadialGradient(CW/2,CH/2,CH*0.32, CW/2,CH/2,CH*0.72);
-    vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(8,4,2,0.5)');
-    ctx.fillStyle=vg; ctx.fillRect(0,0,CW,CH);
     if(s.flash>0 && !reduce){ ctx.fillStyle='rgba(255,255,255,'+(s.flash)+')'; ctx.fillRect(0,0,CW,CH); }
     if(s.timeLeft<=10 && s.phase==='play' && !reduce){ ctx.strokeStyle='rgba(192,57,43,'+(0.3+0.3*Math.sin(anim*0.5))+')'; ctx.lineWidth=4; ctx.strokeRect(2,2,CW-4,CH-4); }
     if(bannerT>0){ drawBanner(CW,CH); if(active && !rulesO.classList.contains('show')) bannerT--; }
