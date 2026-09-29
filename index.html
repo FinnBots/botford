@@ -1096,6 +1096,27 @@ if(!HEADLESS){
   const SS=3;
   { const _w=cv.width, _h=cv.height; cv.width=_w*SS; cv.height=_h*SS;
     ctx.setTransform(SS,0,0,SS,0,0); ctx.imageSmoothingEnabled=false; }
+
+  /* THE HERO IS THE REAL BOT 106 (Founder, 2026-09-29: BotFord's digger was drawn
+     with primitives — a blue rect and a painted screen-face — while its own keyed
+     bot-106.png sat deployed and unused). Crop to the PNG's opaque bounding box
+     once on load, exactly as the other games do, then draw it at one tile: in a
+     cave game the digger is one cell, same as the cast. */
+  const heroImg=new Image(); let heroOK=false, heroBox=null;
+  heroImg.onload=function(){
+    try{
+      const w=heroImg.naturalWidth||512, h=heroImg.naturalHeight||512;
+      const sc=document.createElement('canvas'); sc.width=w; sc.height=h;
+      const sx=sc.getContext('2d'); sx.drawImage(heroImg,0,0);
+      const d=sx.getImageData(0,0,w,h).data;
+      let x0=w,y0=h,x1=-1,y1=-1;
+      for(let y=0;y<h;y++) for(let x=0;x<w;x++){ if(d[(y*w+x)*4+3]>24){
+        if(x<x0)x0=x; if(x>x1)x1=x; if(y<y0)y0=y; if(y>y1)y1=y; } }
+      if(x1<0){ x0=0;y0=0;x1=w-1;y1=h-1; }
+      heroBox={x:x0,y:y0,w:x1-x0+1,h:y1-y0+1}; heroOK=true;
+    }catch(e){ heroOK=false; }          /* fall back to the drawn bot below */
+  };
+  heroImg.src='assets/hero/bot-106.png';
   ctx.imageSmoothingEnabled=false;
   const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -1247,6 +1268,17 @@ if(!HEADLESS){
     ctx.fillStyle=eye; ctx.fillRect(px+5,py+6,2,2); ctx.fillRect(px+9,py+6,2,2);
     ctx.fillStyle='#1a0000'; ctx.fillRect(px+5,py+10,6,1); }
   function drawBot(px,py){
+    if(heroOK && heroBox){
+      ctx.save();
+      ctx.imageSmoothingEnabled=true; ctx.imageSmoothingQuality='high';
+      ctx.translate(px+TS/2, py+TS);                 /* feet on the cell floor */
+      if(s.face<0) ctx.scale(-1,1);
+      ctx.shadowColor='rgba(8,5,9,.9)'; ctx.shadowBlur=1.5;
+      ctx.drawImage(heroImg, heroBox.x,heroBox.y,heroBox.w,heroBox.h, -TS/2,-TS, TS,TS);
+      ctx.restore();
+      ctx.imageSmoothingEnabled=false;
+      return;
+    }
     ctx.fillStyle=A; ctx.fillRect(px+2,py+1,TS-4,TS-2);
     ctx.fillStyle='#22314f'; ctx.fillRect(px+2,py+1,TS-4,2);
     // screen-face 106 with a two-frame blink
