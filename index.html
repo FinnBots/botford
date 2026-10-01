@@ -705,7 +705,9 @@ function caveE(){ const r=baseRows('.');           // GUARDS — sparks patrol l
   rect(r,28,18,32,20,'='); setc(r,29,19,'B'); setc(r,30,19,'B'); setc(r,31,19,'B');
   setc(r,30,17,'o');                               // drum near the vault (optional blast)
   setc(r,36,20,'X');
-  return { rows:frame(r), needed:8, time:150, val:10, extra:15 };
+  /* 8 REACHABLE beads and the quota was 8 — spare zero, with three sparks
+     patrolling in front of them. One blast and the cave was unfinishable. */
+  return { rows:frame(r), needed:5, time:150, val:10, extra:15 };
 }
 function caveF(){ const r=baseRows('.');           // SPILL — plug the box so the amoeba suffocates into Beads
   setc(r,2,2,'@');
@@ -785,7 +787,9 @@ function caveM(){ const r=baseRows('.');            // TWIN GRATE — magic wall
   hline(r,6,16,16,'='); hline(r,23,33,16,'=');
   scatter(r,[[3,5],[3,10],[3,15],[3,19],[19,5],[20,12],[19,18],[36,5],[36,12],[36,19],[10,19],[28,19],[15,5],[25,5],[6,19],[31,19]],'B');
   setc(r,37,20,'X');
-  return { rows:frame(r), needed:14, time:180, val:10, extra:20 };
+  /* 16 beads, quota was 14. A live grate turns a dropped bead into a DRUM, so
+     two slips used to end the cave. Spare 3. */
+  return { rows:frame(r), needed:13, time:180, val:10, extra:20 };
 }
 function caveN(){ const r=baseRows('.');            // AMOEBA PEN — the spill is boxed; race the clock to fill quota
   setc(r,2,2,'@');
@@ -810,7 +814,9 @@ function caveP(){ const r=baseRows('.');            // GAUNTLET — staggered br
   scatter(r,[[5,5],[5,12],[5,18],[15,4],[15,18],[25,4],[25,10],[35,5],[35,12],[35,18],[12,10],[22,16],[28,18],[8,18],[18,10],[33,3],[30,18]],'B');
   scatter(r,[[6,2],[16,2],[26,2],[36,2]],'o');
   setc(r,37,20,'X');
-  return { rows:frame(r), needed:16, time:180, val:10, extra:15 };
+  /* 17 beads, quota was 16 with two sparks on patrol — one blast eats a 3x3 of
+     beads and the cave was over. Spare 3. */
+  return { rows:frame(r), needed:14, time:180, val:10, extra:15 };
 }
 function caveQ(){ const r=baseRows('.');            // TICK & SPARK — both foes; two void lanes
   setc(r,2,2,'@');
@@ -819,7 +825,8 @@ function caveQ(){ const r=baseRows('.');            // TICK & SPARK — both foe
   scatter(r,[[3,3],[10,3],[18,3],[26,3],[34,3],[3,10],[12,10],[20,10],[28,10],[36,10],[3,13],[16,13],[28,13],[6,19],[16,19],[26,19],[36,19]],'B');
   scatter(r,[[20,2],[20,4]],'o');
   setc(r,37,20,'X');
-  return { rows:frame(r), needed:16, time:180, val:10, extra:15 };
+  /* 17 beads, quota was 16 with sparks AND tickflies in the same cave. Spare 3. */
+  return { rows:frame(r), needed:14, time:180, val:10, extra:15 };
 }
 function caveR(){ const r=baseRows('.');            // GREAT VAULT — quota is outside; the brick vault is a bonus blast
   setc(r,2,2,'@');
@@ -827,7 +834,9 @@ function caveR(){ const r=baseRows('.');            // GREAT VAULT — quota is 
   setc(r,21,10,'S'); setc(r,21,9,' '); setc(r,21,7,'o');
   scatter(r,[[4,4],[8,4],[12,4],[16,4],[4,10],[8,10],[12,10],[16,10],[4,16],[8,16],[12,16],[16,16],[4,19],[10,19],[16,19],[6,7],[20,19]],'B');
   setc(r,37,20,'X');
-  return { rows:frame(r), needed:16, time:180, val:10, extra:15 };
+  /* 94 beads placed but only 17 REACHABLE without blasting the vault, and the
+     quota was 16 — the vault is meant to be a bonus, not the margin. Spare 3. */
+  return { rows:frame(r), needed:14, time:180, val:10, extra:15 };
 }
 function caveS(){ const r=baseRows('.');            // WORKS — grate + boxed spill flavour, quota on the floor
   setc(r,2,2,'@');
@@ -835,7 +844,8 @@ function caveS(){ const r=baseRows('.');            // WORKS — grate + boxed s
   rect(r,4,14,9,19,'='); rect(r,5,15,8,18,' '); setc(r,6,16,'~');
   scatter(r,[[3,4],[8,4],[13,4],[20,3],[28,4],[34,4],[3,10],[11,12],[30,10],[36,7],[36,13],[36,19],[12,19],[20,19],[28,19],[33,17],[18,17]],'B');
   setc(r,37,20,'X');
-  return { rows:frame(r), needed:16, time:190, val:10, extra:20, spillRate:16 };
+  /* 17 beads, quota was 16, and a grate that converts beads to drums. Spare 3. */
+  return { rows:frame(r), needed:14, time:190, val:10, extra:20, spillRate:16 };
 }
 function caveT(){ const r=baseRows('.');            // THE FINALE — sparks, tickflies, a grate, and a big quota
   setc(r,2,2,'@');
@@ -846,7 +856,11 @@ function caveT(){ const r=baseRows('.');            // THE FINALE — sparks, ti
   scatter(r,[[3,3],[12,3],[24,3],[34,3],[3,8],[9,8],[28,8],[35,8],[3,11],[9,11],[30,11],[35,11],[3,14],[9,14],[30,14],[35,14],[6,19],[14,19],[20,19],[26,19],[34,19]],'B');
   setc(r,3,20,'o');
   setc(r,37,20,'X');
-  return { rows:frame(r), needed:20, time:220, val:10, extra:25 };
+  /* THE FINALE: 21 beads, and the quota was 20 — with three sparks and a grate
+     in the same cave. A single bead lost to either and the last cave of the
+     game could not be finished, with nothing on screen to say so. Spare 4.
+     The execution challenge is untouched; the knife edge is gone. */
+  return { rows:frame(r), needed:17, time:220, val:10, extra:25 };
 }
 const CAVES = [caveA(),caveB(),caveC(),caveD(),caveE(),caveF(),caveG(),caveH(),
                caveI(),caveJ(),caveK(),caveL(),caveM(),caveN(),caveO(),caveP(),
@@ -868,6 +882,7 @@ function loadCave(s, ci){
   }
   s.needed=c.needed; s.timeLeft=c.time; s.val=c.val; s.extra=c.extra;
   s.have=0; s.bayOpen=false; s.tickCount=0; s.acc=0; s.flash=0; s.face=1;
+  s.caveLost=false; s.lostT=0;
   s.grateStarted=false; s.grateEndsAt=0;
   s.spillRate=c.spillRate||0; s.spillTick=0; s.hasSpill=false;
   for(let i=0;i<W*H;i++) if(s.g[i]===T.SPILL){ s.hasSpill=true; break; }
@@ -971,6 +986,7 @@ function explAge(s){
 }
 function botDie(s){
   explode(s, s.bx, s.by, T.VOID); s._ev.death=true;
+  s.caveLost = false;
   s.lives--;
   if(s.lives<=0){ s.phase='dead'; return; }
   loadCave(s, s.cave);                             // cave restart on death (score/lives/cave kept on s)
@@ -1061,6 +1077,42 @@ function doTick(s){
     if(s.timeLeft<=0){ botDie(s); return ev; }
   }
   if(!s.bayOpen && s.have>=s.needed) openBay(s);
+
+  /* ---- IS THIS CAVE STILL WINNABLE? ------------------------------------
+     Beads are DESTRUCTIBLE. A spark's blast turns a 3x3 into void and eats any
+     bead in it; a bead dropped through a live grate comes out the other side as
+     a DRUM, or is deleted outright when the cell below is blocked. Five caves
+     ship a quota within one or two beads of the total on the floor AND one of
+     those mechanics — cave 19, the finale, needs 20 of 21 with three sparks and
+     a grate. Lose one and the cave cannot be finished.
+     Nothing said so. The bay never opened, the clock kept running, and the
+     player kept digging for a quota that no longer existed — up to three
+     minutes of a paid run spent on an outcome already decided. Losing a cave to
+     your own mistake is the genre; not being told is just wasting someone's
+     time.
+     The estimate below is deliberately GENEROUS — every tickfly counted at a
+     full 3x3 of beads, every drum counted as convertible while a grate is live,
+     a spill counted at its cap — so this can only fire when the cave is
+     certainly dead, never when it merely looks bad. */
+  if(!s.bayOpen && !s.caveLost){
+    let beads=0, ticks=0, drums=0, spill=0, grate=0;
+    for(let i=0;i<W*H;i++){
+      /* A cell mid-blast is T.EXPL and becomes explR[i] when the flash ends —
+         and a tickfly's blast resolves to BEAD. Counting the EXPL tile would
+         undercount exactly when a cave is CREATING the beads it needs, and
+         declare a winnable cave dead. Count what the cell is about to be. */
+      const t = s.explT[i]>0 ? s.explR[i] : s.g[i];
+      if(t===T.BEAD) beads++; else if(t===T.TICK) ticks++; else if(t===T.DRUM) drums++;
+      else if(t===T.SPILL) spill++; else if(t===T.GRATE) grate++; }
+    const grateLive = grate>0 && (!s.grateStarted || s.tickCount < s.grateEndsAt);
+    const makeable = ticks*9 + (grateLive ? drums : 0) + (spill>0 ? SPILL.max : 0);
+    if(s.have + beads + makeable < s.needed){
+      s.caveLost = true; s.lostT = 18; ev.caveLost = true;   // ~1.8s to read it, then restart
+    }
+  }
+  /* hold the cave open just long enough to read the message, then take the life
+     and reload — the same outcome as the clock running out, minus the wait */
+  if(s.caveLost){ s.lostT--; if(s.lostT<=0){ botDie(s); return ev; } }
   while(s.score>=s.nextExtra){ s.lives++; s.nextExtra+=LIVES.extraEvery; ev.extra=true; }
   return ev;
 }
@@ -1162,6 +1214,7 @@ if(!HEADLESS){
     if(ev.startfall) tone(320,0.03,'square',0.02);
     if(ev.dig) tone(420,0.02,'triangle',0.02);
     if(ev.lowtime) tone(900,0.05,'square',0.03);
+    if(ev.caveLost) tone(220,0.35,'sawtooth',0.05);
   }
 
   /* ---- overlays ----------------------------------------------------------*/
@@ -1321,7 +1374,23 @@ if(!HEADLESS){
     }
     if(s.flash>0 && !reduce){ ctx.fillStyle='rgba(255,255,255,'+(s.flash)+')'; ctx.fillRect(0,0,CW,CH); }
     if(s.timeLeft<=10 && s.phase==='play' && !reduce){ ctx.strokeStyle='rgba(192,57,43,'+(0.3+0.3*Math.sin(anim*0.5))+')'; ctx.lineWidth=4; ctx.strokeRect(2,2,CW-4,CH-4); }
-    if(bannerT>0){ drawBanner(CW,CH); if(active && !rulesO.classList.contains('show')) bannerT--; }
+    /* The objective banner sits at the same height, so on a cave that dies
+       inside its own intro the two drew straight over each other and neither
+       could be read. The bad news wins. */
+    if(bannerT>0 && !s.caveLost){ drawBanner(CW,CH); if(active && !rulesO.classList.contains('show')) bannerT--; }
+    /* The cave can no longer reach its quota. Say so, plainly, instead of
+       letting the clock run out on a decision already made. */
+    if(s.caveLost){
+      const y=Math.floor(CH*0.34);
+      ctx.fillStyle='rgba(42,34,48,.88)'; ctx.fillRect(0,y,CW,50);
+      ctx.fillStyle='#c0392b'; ctx.fillRect(0,y,CW,2); ctx.fillRect(0,y+48,CW,2);
+      ctx.textAlign='center';
+      ctx.fillStyle='#ff8f7a'; ctx.font='16px "Jersey 15",system-ui,sans-serif';
+      ctx.fillText('NOT ENOUGH BEADS LEFT', CW/2, y+22);
+      ctx.fillStyle='rgba(245,235,215,.85)'; ctx.font='11px "Plus Jakarta Sans",system-ui,sans-serif';
+      ctx.fillText('this cave can\u2019t make '+s.needed+' any more — restarting it', CW/2, y+40);
+      ctx.textAlign='left';
+    }
   }
 
   /* ---- input: 4-way move + DIG (snap). A tap is latched so it survives to
