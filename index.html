@@ -1679,7 +1679,7 @@ if(!HEADLESS){
     }
 
     // ---- score memo (BOTF — no seed, no move-log, no replay; records NOT verified) ----
-    function buildScoreMemo(res){ return MEMO_TAG+'|score|sig='+String(entrySig).slice(0,32)+'|score='+res.score+'|cave='+res.cave+'|beads='+res.beads+'|time='+res.timeMs; }
+    function buildScoreMemo(res){ return MEMO_TAG+'|score|sig='+String(entrySig).slice(0,32)+'|score='+res.score+'|cave='+res.cave+'|beads='+res.beads+'|time='+Math.round(res.timeMs); }
 
     // ---- flow glue (BotFord: single-run cave digger) -----------------------
     function relabelStart(){
