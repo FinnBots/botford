@@ -88,7 +88,7 @@
   .life.off{background:rgba(0,0,0,.14);box-shadow:none}
 
   .surface{flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
-  /* Scrolling cave view (follows Bot 106) — width-driven + letterbox, JS refines the exact fit. */
+  /* Scrolling cave view (follows Bot 2969) — width-driven + letterbox, JS refines the exact fit. */
   canvas{
     width:100%;height:auto;max-width:100%;max-height:100%;
     aspect-ratio:24/14; background:#20150f; border-radius:var(--r-lg);
@@ -309,7 +309,7 @@ canvas{ touch-action:none; }
    turned that off for a pointer that IS a cursor, so a laptop kept thumb-sized
    keys it never needed. Measured at 1440x900 across the served roster: ten
    games carry a control block over 90px tall — RIVETBOT 152, BOTMAN/BURROBOT/
-   Mrs Bot 142, BotFord/DRUM PUSH/HOP 106 136 — and every one of those canvases
+   Mrs Bot 142, BotFord/DRUM PUSH/HOPBOT 136 — and every one of those canvases
    is HEIGHT-BOUND, so each pixel of pad comes straight out of the play area.
    The pad stays (people do click it), it just stops being a thumb rest.
    Measured gain: +4.6% to +8.5% canvas height on eight games, and because the
@@ -561,7 +561,7 @@ canvas{ touch-action:none; }
       '.fb-seed-btn:focus-visible{outline:2px solid #3a6ff7;outline-offset:2px}' +
       '.fb-seed .s{display:none}' +
       /* The game's own NAME outranks this chip. At 375px the long label pushed
-       * "WING 106" out of the topbar and left the title rendering as "W..",
+       * "WINGBOT" out of the topbar and left the title rendering as "W..",
        * so below 560px the chip drops the date and uses its short label. A
        * badge that costs a game its title is not worth the information. */
       '@media (max-width:560px){.fb-seed{font-size:10px;padding:3px 3px 3px 7px;gap:4px}' +
@@ -603,7 +603,7 @@ canvas{ touch-action:none; }
      2. CABINET — the canvas reads as an arcade screen: bezel, amber rim light, glow.
      3. THEME  — dark-mode parity with the hub (games.finnstergram.com adapts, the
                  games did not, so hub -> game was a light/dark slap in the face).
-   v2: the PIXEL bot mark (16x16 monitor head, magenta smile — the face of Bots #106/#20)
+   v3: the PIXEL bot mark is Bot 2969, the main character (full colour, 16x16, outlined)
    shared with finnstergram.com and the hub, and a NIGHT-MODE SWITCH in the topbar.
    Section 4 below is written ONCE; apply-brand.js emits it twice — for "the device is
    dark and the player has not chosen light", and for "the switch says dark" — scoping
@@ -897,7 +897,7 @@ body:not(.mode-paid) .app .facts{ display:block !important; }
   color:inherit; opacity:.6; margin:0 0 2px; text-align:center; }
 .fb-outro-win .fb-outro-kicker{ color:var(--amber,#f2a03d); opacity:1; }
 
-/* ---- 3. the hero. Founder, 2026-09-25: "the hero needs to be Bot 106" ---
+/* ---- 3. the hero — Bot 2969, the project's main character (Founder, 2026-10-17) ---
    He is the one who just played the run, so he is the one on the ending
    screen: lit and lifted on a clear, dimmed and tilted on a loss. */
 .fb-outro-hero{ display:block; margin:6px auto 8px; width:76px; height:76px;
@@ -1048,7 +1048,7 @@ body:not(.mode-paid) .app .facts{ display:block !important; }
 <body>
   <div class="wrap">
     <header class="topbar">
-      <!--fb:pill--><a class="fb-mark" href="https://games.finnstergram.com" aria-label="FinnBots — more games"><svg class="fb-bot" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true" focusable="false"><path fill="currentColor" d="M7 1h2v2H7zM2 3h12v1H2zM1 4h14v9H1zM2 13h12v1H2zM0 7h1v3H0zM15 7h1v3h-1z"/><path fill="var(--fb-amber)" d="M7 0h2v1H7z"/><path fill="var(--fb-screen)" d="M2 5h12v7H2z"/><path fill="var(--fb-face,#ff4fd8)" d="M4 6h2v1H4zM3 7h1v2H3zM6 7h1v2H6zM10 6h2v1h-2zM9 7h1v2H9zM12 7h1v2h-1zM4 10h1v1H4zM11 10h1v1h-1zM5 11h6v1H5z"/></svg><span class="fb-word">FINN<i>BOTS</i></span></a><button class="fb-theme" type="button" role="switch" aria-checked="false" aria-label="Night mode"><span class="fbt-track" aria-hidden="true"><span class="fbt-thumb"><svg class="fbt-sun" viewBox="0 0 7 7" shape-rendering="crispEdges"><path fill="#e8891c" d="M2 2h3v3H2zM3 0h1v1H3zM3 6h1v1H3zM0 3h1v1H0zM6 3h1v1H6zM1 1h1v1H1zM5 1h1v1H5zM1 5h1v1H1zM5 5h1v1H5z"/></svg><svg class="fbt-moon" viewBox="0 0 7 7" shape-rendering="crispEdges"><path fill="#3d3f9e" d="M2 0h3v1H2zM1 1h2v1H1zM0 2h2v3H0zM1 5h2v1H1zM2 6h3v1H2zM4 5h2v1H4z"/></svg></span></span></button><!--/fb-->
+      <!--fb:pill--><a class="fb-mark" href="https://games.finnstergram.com" aria-label="FinnBots — more games"><svg class="fb-bot" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true" focusable="false"><path fill="#2a2350" d="M2 2h12v1H2zM1 3h1v1H1zM14 3h1v1H14zM0 4h1v1H0zM15 4h1v1H15zM0 5h1v1H0zM15 5h1v1H15zM0 6h1v1H0zM15 6h1v1H15zM0 7h1v1H0zM15 7h1v1H15zM0 8h1v1H0zM15 8h1v1H15zM0 9h1v1H0zM15 9h1v1H15zM0 10h1v1H0zM15 10h1v1H15zM0 11h1v1H0zM15 11h1v1H15zM0 12h1v1H0zM15 12h1v1H15zM1 13h1v1H1zM14 13h1v1H14zM2 14h12v1H2z"/><path fill="#ff8fc8" d="M3 0h2v1H3zM11 0h2v1H11zM3 1h2v1H3zM11 1h2v1H11z"/><path fill="#8fd3f5" d="M2 3h12v1H2zM1 4h14v1H1zM1 5h14v1H1zM1 6h14v1H1zM1 7h14v1H1zM1 8h14v1H1zM1 9h14v1H1zM1 10h14v1H1zM1 11h14v1H1zM1 12h14v1H1zM2 13h12v1H2z"/><path fill="#5aa9d6" d="M1 4h3v1H1zM1 5h3v1H1zM1 6h3v1H1zM1 7h3v1H1zM1 8h3v1H1zM1 9h3v1H1zM1 10h3v1H1zM1 11h3v1H1zM1 12h3v1H1z"/><path fill="#fff" d="M3 5h4v1H3zM9 5h4v1H9zM3 6h4v1H3zM9 6h4v1H9zM3 7h4v1H3zM9 7h4v1H9z"/><path fill="#2a2350" d="M4 5h1v1H4zM11 5h1v1H11zM4 6h2v1H4zM10 6h2v1H10z"/><path fill="#fff" d="M4 10h8v1H4zM4 11h8v1H4z"/><path fill="#2a2350" d="M6 10h1v1H6zM8 10h1v1H8zM10 10h1v1H10zM6 11h1v1H6zM8 11h1v1H8zM10 11h1v1H10z"/></svg><span class="fb-word">FINN<i>BOTS</i></span></a><button class="fb-theme" type="button" role="switch" aria-checked="false" aria-label="Night mode"><span class="fbt-track" aria-hidden="true"><span class="fbt-thumb"><svg class="fbt-sun" viewBox="0 0 7 7" shape-rendering="crispEdges"><path fill="#e8891c" d="M2 2h3v3H2zM3 0h1v1H3zM3 6h1v1H3zM0 3h1v1H0zM6 3h1v1H6zM1 1h1v1H1zM5 1h1v1H5zM1 5h1v1H1zM5 5h1v1H5z"/></svg><svg class="fbt-moon" viewBox="0 0 7 7" shape-rendering="crispEdges"><path fill="#3d3f9e" d="M2 0h3v1H2zM1 1h2v1H1zM0 2h2v3H0zM1 5h2v1H1zM2 6h3v1H2zM4 5h2v1H4z"/></svg></span></span></button><!--/fb-->
       <h1 class="title">BOTFORD</h1>
       <button class="iconbtn" id="restartBtn" aria-label="Restart this cave" title="Restart cave (R)">⟲</button>
       <button class="iconbtn" id="infoBtn" aria-label="How to play">ⓘ</button>
@@ -1086,7 +1086,7 @@ body:not(.mode-paid) .app .facts{ display:block !important; }
     </div>
 
     <main class="surface">
-      <canvas id="game" width="384" height="224" aria-label="BotFord cave. Bot 106 digs scrap, drops drums, collects Beads, and reaches the bay before the timer ends. Avoid falling drums, Sparks and Tickflies. The view scrolls to follow Bot 106."></canvas>
+      <canvas id="game" width="384" height="224" aria-label="BotFord cave. Bot 2969 digs scrap, drops drums, collects Beads, and reaches the bay before the timer ends. Avoid falling drums, Sparks and Tickflies. The view scrolls to follow Bot 2969."></canvas>
     </main>
 
     <div class="controls" aria-label="Move and dig">
@@ -1115,7 +1115,7 @@ body:not(.mode-paid) .app .facts{ display:block !important; }
       <h2 id="rulesTitle">HOW TO PLAY</h2>
       <p style="font-size:13px;margin:2px 0 10px"><b>Goal:</b> tunnel through the dirt, collect the <b>Beads</b> quota shown in the top bar, then reach the <b>BAY</b> exit before <b>TIME</b> runs out.</p>
       <ul class="rules">
-        <li><b>Move &amp; dig:</b> arrows / WASD / the d-pad. Walk into brown <b>dirt</b> to dig a path. The view scrolls to follow Bot&nbsp;106.</li>
+        <li><b>Move &amp; dig:</b> arrows / WASD / the d-pad. Walk into brown <b>dirt</b> to dig a path. The view scrolls to follow Bot&nbsp;2969.</li>
         <li><b>Beads</b> are the amber gems — walk onto one to grab it. Collect the number in <b>BEADS&nbsp;x/total</b>.</li>
         <li>When you hit the quota the screen <b>flashes white</b> and the hidden <b>BAY</b> opens (bright green) — step into it to clear the cave.</li>
         <li><b>Drums</b> (barrels) fall and roll like boulders. Dig the dirt under one and step aside — being under a <i>falling</i> drum is fatal.</li>
@@ -1123,7 +1123,7 @@ body:not(.mode-paid) .app .facts{ display:block !important; }
         <li>Avoid <b>Sparks</b> (red) and <b>Tickflies</b> (green) — one touch kills. Drop a drum on a Tickfly to burst it into Beads.</li>
       </ul>
       <div class="legend">
-        <div>🟦 Bot 106</div><div>🟫 Drum</div>
+        <div>🟦 Bot 2969</div><div>🟫 Drum</div>
         <div>🟠 Bead ($OIL)</div><div>🟥 Spark</div>
         <div>🟩 Tickfly</div><div>🫒 Spill</div>
       </div>
@@ -1178,7 +1178,7 @@ body:not(.mode-paid) .app .facts{ display:block !important; }
 "use strict";
 /* ==========================================================================
    BOTFORD — FinnBots.  ENGINE (Free gameplay).  CAVE-DIG LOOP.
-   A discrete 10 Hz grid cave. Bot 106 digs scrap, drops/pushes drums, collects
+   A discrete 10 Hz grid cave. Bot 2969 digs scrap, drops/pushes drums, collects
    the Bead quota, then reaches the flashing BAY before TIME hits 0. Drums and
    Beads share one gravity brain (STILL / FALLING): they fall into void and roll
    off rounded things (still drum, still Bead, brick). Sparks (clockwise) and
@@ -1196,7 +1196,7 @@ body:not(.mode-paid) .app .facts{ display:block !important; }
 const CFG = {
   name:'BotFord', memoNS:'BOTF', chassis:'sink-leaderboard',
   subdomain:'dig.finnstergram.com', port:9013,
-  hero:106, accent:'#3a6ff7', danger:'#f2a03d',
+  hero:2969, accent:'#3a6ff7', danger:'#f2a03d',
   entryOIL:25, scorePost:1,
 };
 
@@ -1264,7 +1264,7 @@ function caveD(){ const r=baseRows('.');           // TICKFLIES — quota > plac
   scatter(r,[[4,18],[8,18],[12,18],[27,18],[31,18],[35,18]],'B');   // only 6 placed; needed 10 -> must blast a tickfly
   [10,20,30].forEach(function(cx){
     // sealed 1-wide pocket: the tickfly can only bob up/down in column cx — it can't
-    // dodge a dropped drum and can't escape to reach Bot 106.
+    // dodge a dropped drum and can't escape to reach Bot 2969.
     setc(r,cx-1,11,'='); setc(r,cx-1,12,'='); setc(r,cx-1,13,'=');   // left wall
     setc(r,cx+1,11,'='); setc(r,cx+1,12,'='); setc(r,cx+1,13,'=');   // right wall
     setc(r,cx,13,'=');                             // floor
@@ -1757,9 +1757,8 @@ if(!HEADLESS){
   { const _w=cv.width, _h=cv.height; cv.width=_w*SS; cv.height=_h*SS;
     ctx.setTransform(SS,0,0,SS,0,0); ctx.imageSmoothingEnabled=false; }
 
-  /* THE HERO IS THE REAL BOT 106 (Founder, 2026-09-29: BotFord's digger was drawn
-     with primitives — a blue rect and a painted screen-face — while its own keyed
-     bot-106.png sat deployed and unused). Crop to the PNG's opaque bounding box
+  /* THE HERO IS THE REAL BOT 2969 (Founder, 2026-09-29: BotFord's digger was drawn
+     with primitives — a blue rect and a painted screen-face — while its own keyed bot-2969.png sat deployed and unused). Crop to the PNG's opaque bounding box
      once on load, exactly as the other games do, then draw it at one tile: in a
      cave game the digger is one cell, same as the cast. */
   const heroImg=new Image(); let heroOK=false, heroBox=null;
@@ -1776,11 +1775,11 @@ if(!HEADLESS){
       heroBox={x:x0,y:y0,w:x1-x0+1,h:y1-y0+1}; heroOK=true;
     }catch(e){ heroOK=false; }          /* fall back to the drawn bot below */
   };
-  heroImg.src='assets/hero/bot-106.png';
+  heroImg.src='assets/hero/bot-2969.png';
   ctx.imageSmoothingEnabled=false;
   const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // Scrolling camera: show a zoomed VIEW window and follow Bot 106 (like the
+  // Scrolling camera: show a zoomed VIEW window and follow Bot 2969 (like the
   // original, whose 40x22 cave scrolls in a smaller window). Canvas backing store
   // is VIEW tiles; CSS scales it up crisply so tiles are big and readable.
   const VIEW={ w:24, h:14 };            // tiles visible at once (canvas = 384x224)
@@ -1957,7 +1956,7 @@ if(!HEADLESS){
     }
     ctx.fillStyle=A; ctx.fillRect(px+2,py+1,TS-4,TS-2);
     ctx.fillStyle='#22314f'; ctx.fillRect(px+2,py+1,TS-4,2);
-    // screen-face 106 with a two-frame blink
+    // Bot 2969 with a two-frame blink
     const blink=(Math.floor(anim/6)%6===0);
     ctx.fillStyle='#dff0ff';
     if(blink){ ctx.fillRect(px+5,py+7,2,1); ctx.fillRect(px+9,py+7,2,1); }
@@ -1981,7 +1980,7 @@ if(!HEADLESS){
   }
   function draw(){
     const CW=VIEW.w*TS, CH=VIEW.h*TS;
-    // camera follows Bot 106, clamped to the cave (scrolls a 40x22 cave like the original)
+    // camera follows Bot 2969, clamped to the cave (scrolls a 40x22 cave like the original)
     let tx=s.bx-VIEW.w/2+0.5, ty=s.by-VIEW.h/2+0.5;
     tx=Math.max(0,Math.min(W-VIEW.w,tx)); ty=Math.max(0,Math.min(H-VIEW.h,ty));
     if(!camInit){ camX=tx; camY=ty; camInit=true; } else { camX+=(tx-camX)*0.22; camY+=(ty-camY)*0.22; }
@@ -2864,13 +2863,13 @@ if(!HEADLESS){
     place();
 
     var hero = q('.fb-outro-hero');
-    /* The hero is the real Bot 106 PNG every game already ships (Founder,
-       2026-09-25). Shown only once the browser confirms it decoded, so a game
-       without the asset simply has no hero rather than a broken image. */
+    /* The hero is the real Bot 2969 PNG every game ships (Founder, 2026-10-17: the
+       project's main character). Shown only once the browser confirms it decoded, so a
+       game without the asset simply has no hero rather than a broken image. */
     try{
       hero.addEventListener('load', function(){ hero.hidden = false; });
       hero.addEventListener('error', function(){ hero.hidden = true; });
-      hero.src = 'assets/hero/bot-106.png';
+      hero.src = 'assets/hero/bot-2969.png';
     }catch(e){}
 
     /* ---- the count-up ---------------------------------------------------- */
@@ -2990,8 +2989,8 @@ if(!HEADLESS){
       if(box.parentNode === card) document.body.classList.add('fb-outro-on');
       box.classList.remove('fb-outro-win','fb-outro-end');
       box.classList.add(win ? 'fb-outro-win' : 'fb-outro-end');
-      q('.fb-outro-kicker').textContent = win ? 'Shift complete · Bot 106 made it out'
-                                              : 'Shift ended · Bot 106 powers down';
+      q('.fb-outro-kicker').textContent = win ? 'Shift complete · Bot 2969 made it out'
+                                              : 'Shift ended · Bot 2969 powers down';
       var rows = harvest(), ul = q('.fb-outro-tally');
       ul.innerHTML = '';
       for(var i=0;i<rows.length;i++){
