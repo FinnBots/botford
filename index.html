@@ -1243,7 +1243,7 @@ body:not(.mode-paid) .app .facts{ display:block !important; }
   <!-- Kid-safety confirm gate (shown BEFORE any wallet code runs) -->
   <div class="sheet" id="confirmSheet"><div class="panel">
     <h2>Play BotFord — Paid</h2>
-    <p>One entry = one run (3 lives). It costs <b>25 OIL</b>, which is spent: it is not paid back and there is no prize. You're playing for a place on the leaderboard. If your wallet holds a FinnBot, your score counts ×1.5.<br/><br/>Needs a grown-up's crypto wallet. A <b>fun ranking</b>, not an official one.</p>
+    <p>One entry = one run (3 lives). It costs <b>25 OIL</b>, which is spent: it is not paid back and there is no prize. You're playing for a place on the leaderboard. Everyone is ranked on the same real score; if your wallet holds a FinnBot, you also get a Bot holders table of your own.<br/><br/>Needs a grown-up's crypto wallet. A <b>fun ranking</b>, not an official one.</p>
     <button class="again" id="confirmEnter" type="button">Connect &amp; Pay</button>
     <button class="ghostbtn" id="confirmBack" type="button">Cancel</button>
   </div></div>
@@ -2711,7 +2711,7 @@ if(!HEADLESS){
     function showPaidStart(){
       entrySig=null; pendingResult=null; busy=false; lockModeToggle(false);
       var ov=$('paidOverlay'); ov.classList.add('show');
-      ov.innerHTML='<div class="card"><h2>BOTFORD — PAID</h2><p>25 OIL entry · one run (3 lives) · fun leaderboard, not verified. Dig the caves, bank the Beads, reach the bay — holders ×1.5.</p>'+
+      ov.innerHTML='<div class="card"><h2>BOTFORD — PAID</h2><p>25 OIL entry · one run (3 lives) · fun leaderboard, not verified. Dig the caves, bank the Beads, reach the bay — ranked on the real score.</p>'+
         '<button class="btn" id="paidPlayBtn">Play (25 OIL)</button></div>';
       $('paidPlayBtn').addEventListener('click', function(){ handleStart(); });
       relabelStart();
@@ -2803,7 +2803,7 @@ if(!HEADLESS){
   var facts=$('facts');
   var confirmSheet=$('confirmSheet');
   var FREE_FACTS='Free · wallet-free · pays nothing';
-  var PAID_FACTS='Paid · 25 OIL entry · one run · fun leaderboard (not verified) · holders ×1.5';
+  var PAID_FACTS='Paid · 25 OIL entry · one run · fun leaderboard (not verified) · same real score for everyone';
 
   function setMode(m){
     mode=m;
