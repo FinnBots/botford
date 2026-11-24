@@ -55,7 +55,7 @@
 
   /* Rotate hint — portrait phones only (the cave is a wide 40x22 landscape) */
   .rotate{display:none}
-  @media (orientation:portrait) and (max-width:820px) and (pointer:coarse){
+  @media (orientation:portrait) and (max-width:820px) and (pointer:coarse) and (max-width:0px){   /* off 2026-11-24: portrait has its own tall view */
     .rotate{display:flex;align-items:center;justify-content:center;gap:6px;
       background:rgba(255,255,255,.6);border-radius:var(--r-md);padding:7px var(--s3);
       font-size:12.5px;color:var(--plum-deep);text-align:center;box-shadow:var(--sh1)}
@@ -2279,6 +2279,18 @@ if(!HEADLESS){
   // original, whose 40x22 cave scrolls in a smaller window). Canvas backing store
   // is VIEW tiles; CSS scales it up crisply so tiles are big and readable.
   const VIEW={ w:24, h:14 };            // tiles visible at once (canvas = 384x224)
+  /* PORTRAIT PHONES (2026-11-24, Founder: "fix 1 and 2"): a 24x14 landscape window on a portrait phone was a strip a fifth of
+     the screen tall at ~15px a tile, and not one phone player in a week reached the end of a run. The camera already scrolls, so
+     a portrait play surface gets a TALL window instead — 14 tiles wide, as tall as the surface allows (to the cave's own 22):
+     ~25px tiles filling the screen. Same cave, same rules, same timer; only the window onto it changes shape. */
+  function setView(bw,bh){
+    let w=24, h=14;
+    if(bw>0 && bh>bw*1.15){ w=14; h=Math.max(14,Math.min(H,Math.round(w*bh/bw))); }
+    if(w===VIEW.w && h===VIEW.h) return;
+    VIEW.w=w; VIEW.h=h;
+    cv.width=w*TS*SS; cv.height=h*TS*SS; ctx.setTransform(SS,0,0,SS,0,0); ctx.imageSmoothingEnabled=false;
+    cv.style.aspectRatio=w+'/'+h;
+  }
 
   // Fit the canvas to the largest VIEW-aspect rectangle that fits the play surface.
   function fitCanvas(){ const box=(function(){ /* CONTENT box, not the border box: getBoundingClientRect
@@ -2293,6 +2305,7 @@ if(!HEADLESS){
       const px=(parseFloat(cs.paddingLeft)||0)+(parseFloat(cs.paddingRight)||0);
       const py=(parseFloat(cs.paddingTop)||0)+(parseFloat(cs.paddingBottom)||0);
       return { width:Math.max(0,host.clientWidth-px), height:Math.max(0,host.clientHeight-py) }; })();
+    setView(box.width, box.height);
     const ar=VIEW.w/VIEW.h; let w=box.width, h=w/ar; if(h>box.height){ h=box.height; w=h*ar; }
     cv.style.width=Math.max(80,Math.floor(w))+'px'; cv.style.height=Math.max(44,Math.floor(h))+'px'; }
   addEventListener('resize',fitCanvas); addEventListener('orientationchange',function(){ setTimeout(fitCanvas,60); });
@@ -2463,14 +2476,15 @@ if(!HEADLESS){
   }
   function drawBanner(CW,CH){
     const a=Math.min(1, bannerT/28);
-    const y=Math.floor(CH*0.30);
-    ctx.fillStyle='rgba(42,34,48,'+(0.78*a)+')'; ctx.fillRect(0,y,CW,58);
-    ctx.fillStyle='rgba(242,160,61,'+(0.9*a)+')'; ctx.fillRect(0,y,CW,2); ctx.fillRect(0,y+56,CW,2);
+    const y=Math.floor(CH*0.30), narrow=CW<300, bh=narrow?72:58;   // a portrait window is 224 wide: the line wraps in two
+    ctx.fillStyle='rgba(42,34,48,'+(0.78*a)+')'; ctx.fillRect(0,y,CW,bh);
+    ctx.fillStyle='rgba(242,160,61,'+(0.9*a)+')'; ctx.fillRect(0,y,CW,2); ctx.fillRect(0,y+bh-2,CW,2);
     ctx.textAlign='center';
     ctx.fillStyle='rgba(255,255,255,'+a+')'; ctx.font='16px "Jersey 15",system-ui,sans-serif';
-    ctx.fillText('CAVE '+CAVE_LETTERS[s.cave]+'  ·  COLLECT '+s.needed+' BEADS', CW/2, y+24);
+    ctx.fillText('CAVE '+CAVE_LETTERS[s.cave]+'  ·  COLLECT '+s.needed+' BEADS', CW/2, y+24, CW-8);
     ctx.fillStyle='rgba(245,235,215,'+a+')'; ctx.font='11px "Plus Jakarta Sans",system-ui,sans-serif';
-    ctx.fillText('Dig the dirt · grab the Beads · then reach the BAY before TIME runs out', CW/2, y+44);
+    if(narrow){ ctx.fillText('Dig the dirt · grab the Beads', CW/2, y+44); ctx.fillText('then reach the BAY before TIME runs out', CW/2, y+60, CW-8); }
+    else ctx.fillText('Dig the dirt · grab the Beads · then reach the BAY before TIME runs out', CW/2, y+44);
     ctx.textAlign='left';
   }
   function draw(){
@@ -2505,7 +2519,7 @@ if(!HEADLESS){
       ctx.fillStyle='#ff8f7a'; ctx.font='16px "Jersey 15",system-ui,sans-serif';
       ctx.fillText('NOT ENOUGH BEADS LEFT', CW/2, y+22);
       ctx.fillStyle='rgba(245,235,215,.85)'; ctx.font='11px "Plus Jakarta Sans",system-ui,sans-serif';
-      ctx.fillText('this cave can\u2019t make '+s.needed+' any more — restarting it', CW/2, y+40);
+      ctx.fillText('this cave can\u2019t make '+s.needed+' any more — restarting it', CW/2, y+40, CW-8);
       ctx.textAlign='left';
     }
   }
